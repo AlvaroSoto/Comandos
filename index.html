@@ -1711,21 +1711,41 @@ const DATA = {
 <span class="comment">:%s/viejo/nuevo/gc  → con confirmación</span>`
     },
     {
-      cat: 'vimsrch', tag: 'tag-vimsrch', tagLabel: 'Buscar',
-      cmd: 'Splits y buffers',
-      desc: 'Trabaja con múltiples archivos y ventanas divididas al mismo tiempo.',
-      code: `<span class="comment">:sp archivo   → split horizontal</span>
-<span class="comment">:vsp archivo  → split vertical</span>
-<span class="comment">Ctrl+w h/j/k/l → navegar entre splits</span>
-<span class="comment">Ctrl+w w      → cambiar al siguiente split</span>
-<span class="comment">Ctrl+w =      → igualar tamaños</span>
+      cat: 'vimnav', tag: 'tag-vimnav', tagLabel: 'Navegación',
+      cmd: 'Archivos y directorios',
+      desc: 'Explora y abre archivos utilizando el explorador integrado (netrw).',
+      code: `<span class="comment">:e .          → abrir explorador en directorio actual</span>
+<span class="comment">:Ex           → abrir explorador en ventana actual</span>
+<span class="comment">:Sex          → abrir explorador en split horizontal</span>
+<span class="comment">:Vex          → abrir explorador en split vertical</span>
+<span class="comment">:Explore      → igual que :Ex</span>
 
 <span class="comment"># Buffers</span>
-<span class="comment">:e archivo    → abrir archivo en buffer</span>
-<span class="comment">:ls           → listar buffers</span>
+<span class="comment">:e archivo    → abrir archivo en buffer actual</span>
+<span class="comment">:ls           → listar buffers abiertos</span>
 <span class="comment">:b2           → ir al buffer 2</span>
 <span class="comment">:bd           → cerrar buffer actual</span>
 <span class="comment">:bn / :bp     → siguiente / anterior buffer</span>`
+    },
+    {
+      cat: 'vimnav', tag: 'tag-vimnav', tagLabel: 'Navegación',
+      cmd: 'Gestión de ventanas (Splits)',
+      desc: 'Trabaja con múltiples ventanas divididas y terminales integradas al mismo tiempo.',
+      code: `<span class="comment"># Dividir y cerrar</span>
+<span class="comment">Ctrl+w s      → dividir horizontalmente</span>
+<span class="comment">Ctrl+w v      → dividir verticalmente</span>
+<span class="comment">Ctrl+w q      → cerrar ventana actual</span>
+<span class="comment">Ctrl+w o      → cerrar todas excepto la actual</span>
+<span class="comment">:vsplit | terminal → abrir terminal en split vertical</span>
+
+<span class="comment"># Navegar</span>
+<span class="comment">Ctrl+w h/j/k/l → mover a izq/abajo/arriba/der</span>
+<span class="comment">Ctrl+w w      → saltar a la siguiente ventana</span>
+<span class="comment">Ctrl+w t      → ir a la primera ventana</span>
+<span class="comment">Ctrl+w b      → ir a la última ventana</span>
+
+<span class="comment"># Redimensionar</span>
+<span class="comment">Ctrl+w =      → igualar tamaños de todas las ventanas</span>`
     },
     /* ── CONFIG ── */
     {

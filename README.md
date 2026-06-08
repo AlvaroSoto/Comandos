@@ -15,7 +15,7 @@ Aplicación educativa interactiva para aprender Git, GitHub, Linux, CMD, PowerSh
 - **Termux:** Emulador de terminal Android (gestión de paquetes, sistema, red, shell, archivos, editores).
 - **CMD:** Símbolo del sistema de Windows (navegación, archivos, sistema, red, utilidades).
 - **PowerShell:** Shell orientada a objetos de Microsoft (navegación, archivos, sistema, red, pipeline).
-- **Vim:** Editor de texto modal para edición rápida.
+- **Vim:** Editor de texto modal para edición rápida (modos, navegación, edición, búsqueda, gestión de ventanas, buffers, explorador netrw).
 - **Python venv:** Gestión de entornos virtuales.
 - **Linux:** Comandos esenciales, navegación, permisos y procesos.
 - **GitHub CLI:** Gestión de repositorios, PRs e issues desde la terminal.
