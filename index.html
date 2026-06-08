@@ -24,6 +24,10 @@
     --termux: #50fa7b;
     --cmd: #8be9fd;
     --ps: #bd93f9;
+    --vim: #57a143;
+    --venv: #f7c948;
+    --linux: #e95420;
+    --gh: #58a6ff;
     --radius: 8px;
     --radius-lg: 12px;
   }
@@ -37,6 +41,22 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+  }
+
+  .mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--text);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+  }
+  .mobile-menu-btn:hover { background: var(--bg3); }
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
   }
 
   /* ── HEADER ── */
@@ -202,6 +222,10 @@
   .topic-icon.termux { background: rgba(168,255,120,.1); }
   .topic-icon.cmd    { background: rgba(0,120,212,.15); }
   .topic-icon.ps     { background: rgba(83,145,254,.12); }
+  .topic-icon.vim    { background: rgba(87,161,67,.15); }
+  .topic-icon.venv   { background: rgba(247,201,72,.1); }
+  .topic-icon.linux  { background: rgba(233,84,32,.15); }
+  .topic-icon.gh     { background: rgba(88,166,255,.12); }
 
   .topic-info h1 {
     font-size: 24px;
@@ -313,7 +337,34 @@
   .tag-util    { background: rgba(139,148,158,.15); color: var(--text2); }
   /* PS tags */
   .tag-pipe    { background: rgba(83,145,254,.12);  color: var(--ps); }
+  /* Vim tags */
+  .tag-modes   { background: rgba(87,161,67,.12);   color: var(--vim); }
+  .tag-vimnav  { background: rgba(80,250,123,.12);  color: var(--green); }
+  .tag-vimedit { background: rgba(255,184,108,.12); color: var(--orange); }
+  .tag-vimsrch { background: rgba(189,147,249,.12); color: var(--purple); }
+  .tag-vimcfg  { background: rgba(139,233,253,.12); color: var(--accent); }
+  /* venv tags */
+  .tag-create  { background: rgba(87,161,67,.12);   color: var(--vim); }
+  .tag-pkgs    { background: rgba(247,201,72,.12);  color: var(--venv); }
+  .tag-export  { background: rgba(255,184,108,.12); color: var(--orange); }
+  .tag-tips    { background: rgba(139,233,253,.12); color: var(--accent); }
   .tag-obj     { background: rgba(188,140,255,.12); color: var(--purple); }
+
+  /* Linux tags */
+  .tag-lnav    { background: rgba(0,120,212,.12);   color: var(--cmd); }
+  .tag-lfile   { background: rgba(63,185,80,.12);   color: var(--green); }
+  .tag-lperm   { background: rgba(188,140,255,.12); color: var(--purple); }
+  .tag-lproc   { background: rgba(248,81,73,.12);   color: var(--red); }
+  .tag-lnet    { background: rgba(210,153,34,.12);  color: var(--orange); }
+  .tag-lshell  { background: rgba(139,233,253,.12); color: var(--accent); }
+  .tag-lpkg    { background: rgba(233,84,32,.12);   color: #e95420; }
+  
+  /* GitHub CLI tags */
+  .tag-ghauth  { background: rgba(63,185,80,.12);   color: var(--green); }
+  .tag-ghrepo  { background: rgba(88,166,255,.12);  color: var(--accent); }
+  .tag-ghpr    { background: rgba(188,140,255,.12); color: var(--purple); }
+  .tag-ghiss   { background: rgba(210,153,34,.12);  color: var(--orange); }
+  .tag-ghact   { background: rgba(248,81,73,.12);   color: var(--red); }
 
   .card-desc {
     font-size: 13px;
@@ -386,9 +437,34 @@
   .topic-section { display: none; }
   .topic-section.visible { display: block; }
 
+  .overlay { display: none; }
+
   /* ── RESPONSIVE ── */
   @media (max-width: 768px) {
-    aside { display: none; }
+    .mobile-menu-btn { display: flex; }
+    aside { 
+      position: fixed;
+      top: 56px;
+      left: -280px;
+      width: 260px;
+      height: calc(100vh - 56px);
+      background: var(--bg2);
+      z-index: 200;
+      transition: left 0.3s ease;
+      box-shadow: 4px 0 15px rgba(0,0,0,0.5);
+    }
+    aside.open { left: 0; }
+    .overlay.open {
+      display: block;
+      position: fixed;
+      top: 56px;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(2px);
+      z-index: 150;
+    }
     main  { padding: 20px 16px; }
     .cards { grid-template-columns: 1fr; }
     .search-wrap { max-width: 240px; margin: 0 12px; }
@@ -399,12 +475,21 @@
 
 <!-- ══ HEADER ══ -->
 <header>
-  <a class="logo" href="#">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#58a6ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/>
-    </svg>
-    Comandos
-  </a>
+  <div class="header-left">
+    <button class="mobile-menu-btn" id="menu-btn" aria-label="Menu">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+    <a class="logo" href="#">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#58a6ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/>
+      </svg>
+      Comandos
+    </a>
+  </div>
 
   <div class="search-wrap">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -420,6 +505,7 @@
 
 <!-- ══ LAYOUT ══ -->
 <div class="layout">
+  <div class="overlay" id="overlay"></div>
 
   <!-- ── SIDEBAR ── -->
   <aside>
@@ -449,15 +535,27 @@
       <span class="count" id="cnt-ps"></span>
     </button>
 
-    <div class="sidebar-label" style="margin-top:20px">Próximamente</div>
-    <button class="nav-item" disabled style="opacity:.4;cursor:default">
-      <span class="dot" style="background:#6e7681"></span> Linux
+    <button class="nav-item" data-topic="vim" onclick="switchTopic('vim', this)">
+      <span class="dot" style="background:#57a143"></span>
+      Vim
+      <span class="count" id="cnt-vim"></span>
     </button>
-    <button class="nav-item" disabled style="opacity:.4;cursor:default">
-      <span class="dot" style="background:#6e7681"></span> Docker
+
+    <button class="nav-item" data-topic="venv" onclick="switchTopic('venv', this)">
+      <span class="dot" style="background:#f7c948"></span>
+      Python venv
+      <span class="count" id="cnt-venv"></span>
     </button>
-    <button class="nav-item" disabled style="opacity:.4;cursor:default">
-      <span class="dot" style="background:#6e7681"></span> GitHub CLI
+
+    <button class="nav-item" data-topic="linux" onclick="switchTopic('linux', this)">
+      <span class="dot" style="background:#e95420"></span>
+      Linux
+      <span class="count" id="cnt-linux"></span>
+    </button>
+    <button class="nav-item" data-topic="gh" onclick="switchTopic('gh', this)">
+      <span class="dot" style="background:#58a6ff"></span>
+      GitHub CLI
+      <span class="count" id="cnt-gh"></span>
     </button>
   </aside>
 
@@ -557,6 +655,87 @@
       </div>
 
       <div id="ps-cards" class="cards"></div>
+    </div>
+
+    <!-- ════ VIM ════ -->
+    <div class="topic-section" id="section-vim">
+      <div class="topic-header">
+        <div class="topic-icon vim">🟢</div>
+        <div class="topic-info">
+          <h1 style="color:#57a143">Vim</h1>
+          <p>Editor de texto modal disponible en casi cualquier sistema Unix/Linux. Dominarlo permite editar código a alta velocidad sin abandonar el teclado.</p>
+        </div>
+      </div>
+      <div class="filters" id="filters-vim">
+        <button class="filter-btn active" onclick="filterCards('vim','all',this)">Todos</button>
+        <button class="filter-btn" onclick="filterCards('vim','modes',this)">Modos</button>
+        <button class="filter-btn" onclick="filterCards('vim','vimnav',this)">Navegación</button>
+        <button class="filter-btn" onclick="filterCards('vim','vimedit',this)">Edición</button>
+        <button class="filter-btn" onclick="filterCards('vim','vimsrch',this)">Buscar</button>
+        <button class="filter-btn" onclick="filterCards('vim','vimcfg',this)">Config</button>
+      </div>
+      <div id="vim-cards" class="cards"></div>
+    </div>
+
+    <!-- ════ PYTHON VENV ════ -->
+    <div class="topic-section" id="section-venv">
+      <div class="topic-header">
+        <div class="topic-icon venv">🐍</div>
+        <div class="topic-info">
+          <h1 style="color:#f7c948">Python venv</h1>
+          <p>Entornos virtuales de Python. Aíslan dependencias por proyecto, evitando conflictos de versiones y manteniendo el sistema limpio.</p>
+        </div>
+      </div>
+      <div class="filters" id="filters-venv">
+        <button class="filter-btn active" onclick="filterCards('venv','all',this)">Todos</button>
+        <button class="filter-btn" onclick="filterCards('venv','create',this)">Crear</button>
+        <button class="filter-btn" onclick="filterCards('venv','pkgs',this)">Paquetes</button>
+        <button class="filter-btn" onclick="filterCards('venv','export',this)">Exportar</button>
+        <button class="filter-btn" onclick="filterCards('venv','tips',this)">Tips</button>
+      </div>
+      <div id="venv-cards" class="cards"></div>
+    </div>
+
+    <!-- ════ LINUX ════ -->
+    <div class="topic-section" id="section-linux">
+      <div class="topic-header">
+        <div class="topic-icon linux">🐧</div>
+        <div class="topic-info">
+          <h1 style="color:#e95420">Linux</h1>
+          <p>Comandos esenciales de la terminal Linux/Unix. Navegación, gestión de archivos, permisos, procesos, red y administración del sistema.</p>
+        </div>
+      </div>
+      <div class="filters" id="filters-linux">
+        <button class="filter-btn active" onclick="filterCards('linux','all',this)">Todos</button>
+        <button class="filter-btn" onclick="filterCards('linux','lnav',this)">Navegación</button>
+        <button class="filter-btn" onclick="filterCards('linux','lfile',this)">Archivos</button>
+        <button class="filter-btn" onclick="filterCards('linux','lperm',this)">Permisos</button>
+        <button class="filter-btn" onclick="filterCards('linux','lproc',this)">Procesos</button>
+        <button class="filter-btn" onclick="filterCards('linux','lnet',this)">Red</button>
+        <button class="filter-btn" onclick="filterCards('linux','lshell',this)">Shell</button>
+        <button class="filter-btn" onclick="filterCards('linux','lpkg',this)">Paquetes</button>
+      </div>
+      <div id="linux-cards" class="cards"></div>
+    </div>
+
+    <!-- ════ GITHUB CLI ════ -->
+    <div class="topic-section" id="section-gh">
+      <div class="topic-header">
+        <div class="topic-icon gh">🐙</div>
+        <div class="topic-info">
+          <h1 style="color:#58a6ff">GitHub CLI</h1>
+          <p>Interfaz de línea de comandos oficial de GitHub. Gestiona repos, pull requests, issues, Actions y más sin salir de la terminal.</p>
+        </div>
+      </div>
+      <div class="filters" id="filters-gh">
+        <button class="filter-btn active" onclick="filterCards('gh','all',this)">Todos</button>
+        <button class="filter-btn" onclick="filterCards('gh','ghrepo',this)">Repos</button>
+        <button class="filter-btn" onclick="filterCards('gh','ghpr',this)">Pull Requests</button>
+        <button class="filter-btn" onclick="filterCards('gh','ghiss',this)">Issues</button>
+        <button class="filter-btn" onclick="filterCards('gh','ghact',this)">Actions</button>
+        <button class="filter-btn" onclick="filterCards('gh','ghauth',this)">Auth</button>
+      </div>
+      <div id="gh-cards" class="cards"></div>
     </div>
 
   </main>
@@ -1392,113 +1571,1003 @@ const DATA = {
 <span class="prompt-ps">PS></span> <span class="cmd">Get-Service</span> spooler | <span class="cmd">Format-List</span> *
 <span class="prompt-ps">PS></span> <span class="cmd">Get-Service</span> | <span class="cmd">Format-Table</span> <span class="flag">-GroupBy</span> Status`
     },
-  ]
+  ],
+
+  /* ══════════════════════════════
+     VIM
+  ══════════════════════════════ */
+  vim: [
+    /* ── MODOS ── */
+    {
+      cat: 'modes', tag: 'tag-modes', tagLabel: 'Modos',
+      cmd: 'Modos fundamentales',
+      desc: 'Vim tiene modos distintos para cada tarea. Cambiar entre ellos es la base para usar el editor eficientemente.',
+      code: `<span class="comment"># Desde Modo Normal (punto de partida)</span>
+<span class="prompt">$</span> <span class="cmd">vim</span> archivo.txt
+
+<span class="comment">i       → Insertar (antes del cursor)</span>
+<span class="comment">a       → Insertar (después del cursor)</span>
+<span class="comment">o       → Nueva línea abajo e insertar</span>
+<span class="comment">O       → Nueva línea arriba e insertar</span>
+<span class="comment">v       → Modo Visual (selección)</span>
+<span class="comment">V       → Visual por líneas</span>
+<span class="comment">Ctrl+v  → Visual en bloque</span>
+<span class="comment">:       → Modo comando</span>
+<span class="comment">Esc     → Volver a Modo Normal</span>`
+    },
+    {
+      cat: 'modes', tag: 'tag-modes', tagLabel: 'Modos',
+      cmd: 'Guardar y salir',
+      desc: 'Comandos esenciales para guardar cambios y salir del editor.',
+      code: `<span class="comment">:w      → guardar</span>
+<span class="comment">:q      → salir (falla si hay cambios)</span>
+<span class="comment">:wq     → guardar y salir</span>
+<span class="comment">:x      → guardar y salir (solo si hay cambios)</span>
+<span class="comment">:q!     → salir sin guardar ⚠️</span>
+<span class="comment">:wqa    → guardar y cerrar todos los buffers</span>
+<span class="comment">ZZ      → guardar y salir (atajo en Normal)</span>
+<span class="comment">ZQ      → salir sin guardar (atajo en Normal)</span>`
+    },
+    /* ── NAVEGACIÓN ── */
+    {
+      cat: 'vimnav', tag: 'tag-vimnav', tagLabel: 'Navegación',
+      cmd: 'Movimiento básico',
+      desc: 'Navega por el archivo sin abandonar la fila de teclas central.',
+      code: `<span class="comment"># Movimiento carácter / línea</span>
+<span class="comment">h j k l → ← ↓ ↑ →</span>
+<span class="comment">w       → inicio de la siguiente palabra</span>
+<span class="comment">b       → inicio de la palabra anterior</span>
+<span class="comment">e       → fin de la palabra actual</span>
+
+<span class="comment">0       → inicio de la línea</span>
+<span class="comment">^       → primer carácter no-espacio</span>
+<span class="comment">$       → fin de la línea</span>
+<span class="comment">gg      → primera línea del archivo</span>
+<span class="comment">G       → última línea del archivo</span>
+<span class="comment">:42     → ir a la línea 42</span>`
+    },
+    {
+      cat: 'vimnav', tag: 'tag-vimnav', tagLabel: 'Navegación',
+      cmd: 'Saltos y pantalla',
+      desc: 'Desplázate rápidamente por archivos largos y entre ventanas.',
+      code: `<span class="comment">Ctrl+f  → página abajo</span>
+<span class="comment">Ctrl+b  → página arriba</span>
+<span class="comment">Ctrl+d  → media página abajo</span>
+<span class="comment">Ctrl+u  → media página arriba</span>
+
+<span class="comment">zz      → centrar cursor en pantalla</span>
+<span class="comment">zt      → cursor al tope</span>
+<span class="comment">zb      → cursor al fondo</span>
+
+<span class="comment">%       → saltar al paréntesis/llave coincidente</span>
+<span class="comment">Ctrl+o  → posición anterior en jump list</span>
+<span class="comment">Ctrl+i  → posición siguiente en jump list</span>`
+    },
+    /* ── EDICIÓN ── */
+    {
+      cat: 'vimedit', tag: 'tag-vimedit', tagLabel: 'Edición',
+      cmd: 'Operadores y movimientos',
+      desc: 'En Vim los operadores se combinan con movimientos: operador + movimiento = acción.',
+      code: `<span class="comment"># Sintaxis: [operador][movimiento]</span>
+<span class="comment">dw      → borrar hasta inicio de siguiente palabra</span>
+<span class="comment">d$      → borrar hasta el fin de línea</span>
+<span class="comment">dd      → borrar la línea completa</span>
+<span class="comment">3dd     → borrar 3 líneas</span>
+<span class="comment">yy      → copiar (yank) la línea</span>
+<span class="comment">yw      → copiar una palabra</span>
+<span class="comment">p       → pegar después del cursor</span>
+<span class="comment">P       → pegar antes del cursor</span>
+<span class="comment">cc      → cambiar línea completa (borra e inserta)</span>
+<span class="comment">cw      → cambiar hasta el fin de la palabra</span>`
+    },
+    {
+      cat: 'vimedit', tag: 'tag-vimedit', tagLabel: 'Edición',
+      cmd: 'Deshacer y macros',
+      desc: 'Rehaz, deshaz y automatiza acciones repetitivas con macros.',
+      code: `<span class="comment">u       → deshacer</span>
+<span class="comment">Ctrl+r  → rehacer</span>
+<span class="comment">.       → repetir el último cambio  ← muy útil</span>
+
+<span class="comment"># Macros</span>
+<span class="comment">qa      → grabar macro en registro 'a'</span>
+<span class="comment">q       → detener grabación</span>
+<span class="comment">@a      → ejecutar macro 'a'</span>
+<span class="comment">10@a    → ejecutar macro 'a' 10 veces</span>
+
+<span class="comment"># Indentación</span>
+<span class="comment">>>      → indentar línea</span>
+<span class="comment"><<      → des-indentar línea</span>
+<span class="comment">=G      → auto-indentar hasta el final</span>`
+    },
+    {
+      cat: 'vimedit', tag: 'tag-vimedit', tagLabel: 'Edición',
+      cmd: 'Text objects',
+      desc: 'Los text objects permiten operar sobre estructuras semánticas como palabras, párrafos o bloques.',
+      code: `<span class="comment"># Sintaxis: [operador] i/a [objeto]</span>
+<span class="comment">diw     → borrar palabra (inner word)</span>
+<span class="comment">daw     → borrar palabra + espacio</span>
+<span class="comment">di"     → borrar contenido dentro de comillas</span>
+<span class="comment">da"     → borrar comillas y contenido</span>
+<span class="comment">di(     → borrar contenido dentro de paréntesis</span>
+<span class="comment">dip     → borrar párrafo</span>
+<span class="comment">ci{     → cambiar contenido dentro de llaves</span>
+<span class="comment">yit     → copiar contenido de etiqueta HTML</span>`
+    },
+    /* ── BUSCAR ── */
+    {
+      cat: 'vimsrch', tag: 'tag-vimsrch', tagLabel: 'Buscar',
+      cmd: 'Búsqueda y reemplazo',
+      desc: 'Busca texto con expresiones regulares y reemplaza en todo el archivo.',
+      code: `<span class="comment">/patrón    → buscar hacia adelante</span>
+<span class="comment">?patrón    → buscar hacia atrás</span>
+<span class="comment">n          → siguiente coincidencia</span>
+<span class="comment">N          → coincidencia anterior</span>
+<span class="comment">*          → buscar la palabra bajo el cursor</span>
+
+<span class="comment"># Reemplazar</span>
+<span class="comment">:s/viejo/nuevo/     → en la línea actual</span>
+<span class="comment">:s/viejo/nuevo/g    → todas en la línea</span>
+<span class="comment">:%s/viejo/nuevo/g   → en todo el archivo</span>
+<span class="comment">:%s/viejo/nuevo/gc  → con confirmación</span>`
+    },
+    {
+      cat: 'vimsrch', tag: 'tag-vimsrch', tagLabel: 'Buscar',
+      cmd: 'Splits y buffers',
+      desc: 'Trabaja con múltiples archivos y ventanas divididas al mismo tiempo.',
+      code: `<span class="comment">:sp archivo   → split horizontal</span>
+<span class="comment">:vsp archivo  → split vertical</span>
+<span class="comment">Ctrl+w h/j/k/l → navegar entre splits</span>
+<span class="comment">Ctrl+w w      → cambiar al siguiente split</span>
+<span class="comment">Ctrl+w =      → igualar tamaños</span>
+
+<span class="comment"># Buffers</span>
+<span class="comment">:e archivo    → abrir archivo en buffer</span>
+<span class="comment">:ls           → listar buffers</span>
+<span class="comment">:b2           → ir al buffer 2</span>
+<span class="comment">:bd           → cerrar buffer actual</span>
+<span class="comment">:bn / :bp     → siguiente / anterior buffer</span>`
+    },
+    /* ── CONFIG ── */
+    {
+      cat: 'vimcfg', tag: 'tag-vimcfg', tagLabel: 'Config',
+      cmd: '.vimrc esencial',
+      desc: 'Configuración mínima recomendada en ~/.vimrc para mejorar la experiencia.',
+      code: `<span class="comment">" ~/.vimrc</span>
+<span class="cmd">set</span> number          <span class="comment">" números de línea</span>
+<span class="cmd">set</span> relativenumber  <span class="comment">" números relativos</span>
+<span class="cmd">set</span> tabstop=4
+<span class="cmd">set</span> shiftwidth=4
+<span class="cmd">set</span> expandtab       <span class="comment">" espacios en vez de tabs</span>
+<span class="cmd">set</span> hlsearch        <span class="comment">" resaltar búsquedas</span>
+<span class="cmd">set</span> incsearch       <span class="comment">" búsqueda incremental</span>
+<span class="cmd">set</span> ignorecase
+<span class="cmd">set</span> smartcase
+<span class="cmd">set</span> autoindent
+<span class="cmd">set</span> clipboard=unnamedplus <span class="comment">" portapapeles del sistema</span>
+<span class="cmd">syntax</span> on`
+    },
+    {
+      cat: 'vimcfg', tag: 'tag-vimcfg', tagLabel: 'Config',
+      cmd: 'vim-plug (plugins)',
+      desc: 'Gestor de plugins minimalista para extender Vim con un solo archivo.',
+      code: `<span class="comment"># Instalar vim-plug</span>
+<span class="prompt">$</span> <span class="cmd">curl</span> <span class="flag">-fLo</span> ~/.vim/autoload/plug.vim <span class="flag">--create-dirs</span> \
+    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+
+<span class="comment">" En ~/.vimrc</span>
+<span class="cmd">call</span> plug#begin()
+  Plug <span class="str">'preservim/nerdtree'</span>       <span class="comment">" árbol de archivos</span>
+  Plug <span class="str">'tpope/vim-fugitive'</span>        <span class="comment">" integración Git</span>
+  Plug <span class="str">'neoclide/coc.nvim'</span>         <span class="comment">" autocompletado LSP</span>
+  Plug <span class="str">'vim-airline/vim-airline'</span>   <span class="comment">" statusline</span>
+<span class="cmd">call</span> plug#end()
+
+<span class="comment">" Instalar desde Vim</span>
+<span class="comment">:PlugInstall</span>`
+    },
+  ],
+
+  /* ══════════════════════════════
+     PYTHON VENV
+  ══════════════════════════════ */
+  venv: [
+    /* ── CREAR ── */
+    {
+      cat: 'create', tag: 'tag-create', tagLabel: 'Crear',
+      cmd: 'python -m venv',
+      desc: 'Crea un entorno virtual en el directorio especificado usando el módulo venv de la librería estándar.',
+      code: `<span class="comment"># Crear entorno en carpeta .venv</span>
+<span class="prompt">$</span> <span class="cmd">python</span> <span class="flag">-m venv</span> .venv
+
+<span class="comment"># Con versión específica</span>
+<span class="prompt">$</span> <span class="cmd">python3.11</span> <span class="flag">-m venv</span> .venv
+
+<span class="comment"># Sin pip (más ligero)</span>
+<span class="prompt">$</span> <span class="cmd">python</span> <span class="flag">-m venv</span> .venv <span class="flag">--without-pip</span>
+
+<span class="comment"># Con acceso a paquetes del sistema</span>
+<span class="prompt">$</span> <span class="cmd">python</span> <span class="flag">-m venv</span> .venv <span class="flag">--system-site-packages</span>`
+    },
+    {
+      cat: 'create', tag: 'tag-create', tagLabel: 'Crear',
+      cmd: 'Activar / desactivar',
+      desc: 'Activa el entorno para que python y pip apunten al entorno virtual.',
+      code: `<span class="comment"># Linux / macOS / Termux</span>
+<span class="prompt">$</span> <span class="cmd">source</span> .venv/bin/activate
+
+<span class="comment"># Windows CMD</span>
+<span class="prompt-cmd">C:\></span> .venv\Scripts\activate.bat
+
+<span class="comment"># Windows PowerShell</span>
+<span class="prompt-ps">PS></span> .venv\Scripts\Activate.ps1
+
+<span class="comment"># Verificar que está activo</span>
+<span class="prompt">$</span> <span class="cmd">which</span> python    <span class="comment"># debe apuntar a .venv/bin/python</span>
+
+<span class="comment"># Desactivar</span>
+<span class="prompt">$</span> <span class="cmd">deactivate</span>`
+    },
+    {
+      cat: 'create', tag: 'tag-create', tagLabel: 'Crear',
+      cmd: 'virtualenv / pyenv',
+      desc: 'Herramientas alternativas para gestionar entornos y versiones de Python.',
+      code: `<span class="comment"># virtualenv (más opciones que venv)</span>
+<span class="prompt">$</span> <span class="cmd">pip install</span> virtualenv
+<span class="prompt">$</span> <span class="cmd">virtualenv</span> .venv
+<span class="prompt">$</span> <span class="cmd">virtualenv</span> <span class="flag">-p</span> python3.11 .venv
+
+<span class="comment"># pyenv: gestiona versiones de Python</span>
+<span class="prompt">$</span> <span class="cmd">pyenv install</span> 3.11.9
+<span class="prompt">$</span> <span class="cmd">pyenv local</span> 3.11.9    <span class="comment"># versión para este proyecto</span>
+<span class="prompt">$</span> <span class="cmd">pyenv global</span> 3.11.9   <span class="comment"># versión global del sistema</span>`
+    },
+    /* ── PAQUETES ── */
+    {
+      cat: 'pkgs', tag: 'tag-pkgs', tagLabel: 'Paquetes',
+      cmd: 'pip install',
+      desc: 'Instala paquetes dentro del entorno virtual activo.',
+      code: `<span class="comment"># Instalar paquete</span>
+<span class="prompt">$</span> <span class="cmd">pip install</span> requests
+
+<span class="comment"># Versión específica</span>
+<span class="prompt">$</span> <span class="cmd">pip install</span> <span class="str">"django==4.2"</span>
+
+<span class="comment"># Rango de versiones</span>
+<span class="prompt">$</span> <span class="cmd">pip install</span> <span class="str">"fastapi>=0.100,<1.0"</span>
+
+<span class="comment"># Desde requirements.txt</span>
+<span class="prompt">$</span> <span class="cmd">pip install</span> <span class="flag">-r</span> requirements.txt
+
+<span class="comment"># Editable (modo desarrollo)</span>
+<span class="prompt">$</span> <span class="cmd">pip install</span> <span class="flag">-e</span> .`
+    },
+    {
+      cat: 'pkgs', tag: 'tag-pkgs', tagLabel: 'Paquetes',
+      cmd: 'pip list / show / uninstall',
+      desc: 'Consulta y gestiona los paquetes instalados en el entorno.',
+      code: `<span class="comment"># Listar paquetes instalados</span>
+<span class="prompt">$</span> <span class="cmd">pip list</span>
+<span class="prompt">$</span> <span class="cmd">pip list</span> <span class="flag">--outdated</span>
+
+<span class="comment"># Detalles de un paquete</span>
+<span class="prompt">$</span> <span class="cmd">pip show</span> requests
+
+<span class="comment"># Actualizar</span>
+<span class="prompt">$</span> <span class="cmd">pip install</span> <span class="flag">--upgrade</span> requests
+
+<span class="comment"># Desinstalar</span>
+<span class="prompt">$</span> <span class="cmd">pip uninstall</span> requests <span class="flag">-y</span>`
+    },
+    /* ── EXPORTAR ── */
+    {
+      cat: 'export', tag: 'tag-export', tagLabel: 'Exportar',
+      cmd: 'requirements.txt',
+      desc: 'Genera y utiliza el archivo estándar para compartir dependencias del proyecto.',
+      code: `<span class="comment"># Generar con versiones exactas</span>
+<span class="prompt">$</span> <span class="cmd">pip freeze</span> > requirements.txt
+
+<span class="comment"># Solo dependencias directas (pipreqs)</span>
+<span class="prompt">$</span> <span class="cmd">pip install</span> pipreqs
+<span class="prompt">$</span> <span class="cmd">pipreqs</span> . <span class="flag">--force</span>
+
+<span class="comment"># Instalar desde el archivo</span>
+<span class="prompt">$</span> <span class="cmd">pip install</span> <span class="flag">-r</span> requirements.txt
+
+<span class="comment"># Separar entornos</span>
+<span class="comment"># requirements.txt       → producción</span>
+<span class="comment"># requirements-dev.txt   → desarrollo</span>`
+    },
+    {
+      cat: 'export', tag: 'tag-export', tagLabel: 'Exportar',
+      cmd: 'uv (gestor moderno)',
+      desc: 'uv es un gestor ultrarrápido de paquetes y entornos que reemplaza pip + venv.',
+      code: `<span class="comment"># Instalar uv</span>
+<span class="prompt">$</span> <span class="cmd">pip install</span> uv
+
+<span class="comment"># Crear entorno e instalar en un paso</span>
+<span class="prompt">$</span> <span class="cmd">uv venv</span> && <span class="cmd">source</span> .venv/bin/activate
+<span class="prompt">$</span> <span class="cmd">uv pip install</span> <span class="flag">-r</span> requirements.txt
+
+<span class="comment"># Mucho más rápido que pip:</span>
+<span class="comment"># uv pip install django   → ~10x más rápido</span>
+<span class="comment"># uv pip compile          → resolver dependencias</span>`
+    },
+    /* ── TIPS ── */
+    {
+      cat: 'tips', tag: 'tag-tips', tagLabel: 'Tips',
+      cmd: '.env + python-dotenv',
+      desc: 'Carga variables de entorno desde un archivo .env para no hardcodear credenciales.',
+      code: `<span class="prompt">$</span> <span class="cmd">pip install</span> python-dotenv
+
+<span class="comment"># .env</span>
+<span class="comment">DATABASE_URL=postgresql://user:pass@localhost/db</span>
+<span class="comment">SECRET_KEY=mi_clave_secreta</span>
+
+<span class="comment"># En tu código Python</span>
+<span class="cmd">from</span> dotenv <span class="kw">import</span> load_dotenv
+<span class="cmd">import</span> os
+load_dotenv()
+db = os.getenv(<span class="str">"DATABASE_URL"</span>)
+
+<span class="comment"># Nunca commitear .env → agregar a .gitignore</span>`
+    },
+    {
+      cat: 'tips', tag: 'tag-tips', tagLabel: 'Tips',
+      cmd: 'Buenas prácticas',
+      desc: 'Convenciones y flujo de trabajo recomendado para entornos virtuales en proyectos reales.',
+      code: `<span class="comment"># Estructura recomendada</span>
+<span class="comment">mi-proyecto/</span>
+<span class="comment">├── .venv/           ← nunca commitear</span>
+<span class="comment">├── .gitignore       ← incluir .venv/</span>
+<span class="comment">├── .env             ← nunca commitear</span>
+<span class="comment">├── requirements.txt</span>
+<span class="comment">└── src/</span>
+
+<span class="comment"># .gitignore mínimo</span>
+<span class="prompt">$</span> <span class="cmd">echo</span> <span class="str">".venv/\n.env\n__pycache__/"</span> >> .gitignore
+
+<span class="comment"># Verificar Python del entorno</span>
+<span class="prompt">$</span> <span class="cmd">python</span> <span class="flag">-c</span> <span class="str">"import sys; print(sys.prefix)"</span>`
+    },
+    {
+      cat: 'tips', tag: 'tag-tips', tagLabel: 'Tips',
+      cmd: 'conda (alternativa)',
+      desc: 'Gestor de entornos y paquetes popular en ciencia de datos; gestiona también dependencias no-Python.',
+      code: `<span class="comment"># Crear entorno con versión de Python</span>
+<span class="prompt">$</span> <span class="cmd">conda create</span> <span class="flag">-n</span> mi-env python=3.11
+
+<span class="comment"># Activar / desactivar</span>
+<span class="prompt">$</span> <span class="cmd">conda activate</span> mi-env
+<span class="prompt">$</span> <span class="cmd">conda deactivate</span>
+
+<span class="comment"># Instalar paquete</span>
+<span class="prompt">$</span> <span class="cmd">conda install</span> numpy pandas
+
+<span class="comment"># Listar entornos</span>
+<span class="prompt">$</span> <span class="cmd">conda env list</span>
+
+<span class="comment"># Exportar / importar entorno</span>
+<span class="prompt">$</span> <span class="cmd">conda env export</span> > environment.yml
+<span class="prompt">$</span> <span class="cmd">conda env create</span> <span class="flag">-f</span> environment.yml`
+    },
+  ],
+  /* ══════════════════════════════
+     LINUX
+  ══════════════════════════════ */
+  linux: [
+    /* ── NAVEGACIÓN ── */
+    {
+      cat: 'lnav', tag: 'tag-lnav', tagLabel: 'Navegación',
+      cmd: 'pwd / cd / ls',
+      desc: 'Comandos básicos para orientarte y moverte por el sistema de archivos.',
+      code: `<span class="comment"># Mostrar directorio actual</span>
+<span class="prompt">$</span> <span class="cmd">pwd</span>
+<span class="comment">/home/usuario/proyectos</span>
+
+<span class="comment"># Cambiar directorio</span>
+<span class="prompt">$</span> <span class="cmd">cd</span> /var/log
+<span class="prompt">$</span> <span class="cmd">cd</span> ~           <span class="comment"># ir al home</span>
+<span class="prompt">$</span> <span class="cmd">cd</span> ..          <span class="comment"># subir un nivel</span>
+<span class="prompt">$</span> <span class="cmd">cd</span> -           <span class="comment"># volver al directorio anterior</span>
+
+<span class="comment"># Listar archivos</span>
+<span class="prompt">$</span> <span class="cmd">ls</span> <span class="flag">-la</span>         <span class="comment"># lista detallada con ocultos</span>
+<span class="prompt">$</span> <span class="cmd">ls</span> <span class="flag">-lh</span>         <span class="comment"># tamaños legibles (KB, MB)</span>
+<span class="prompt">$</span> <span class="cmd">ls</span> <span class="flag">-lt</span>         <span class="comment"># ordenar por fecha</span>`
+    },
+    {
+      cat: 'lnav', tag: 'tag-lnav', tagLabel: 'Navegación',
+      cmd: 'find',
+      desc: 'Busca archivos y directorios por nombre, tipo, tamaño, fecha o permisos.',
+      code: `<span class="comment"># Buscar por nombre</span>
+<span class="prompt">$</span> <span class="cmd">find</span> /home <span class="flag">-name</span> <span class="str">"*.log"</span>
+
+<span class="comment"># Solo directorios / solo archivos</span>
+<span class="prompt">$</span> <span class="cmd">find</span> . <span class="flag">-type</span> d     <span class="comment"># directorios</span>
+<span class="prompt">$</span> <span class="cmd">find</span> . <span class="flag">-type</span> f     <span class="comment"># archivos</span>
+
+<span class="comment"># Por tamaño y tiempo</span>
+<span class="prompt">$</span> <span class="cmd">find</span> /var <span class="flag">-size</span> +100M
+<span class="prompt">$</span> <span class="cmd">find</span> . <span class="flag">-mtime</span> <span class="flag">-7</span>   <span class="comment"># modificados en los últimos 7 días</span>
+
+<span class="comment"># Ejecutar comando en cada resultado</span>
+<span class="prompt">$</span> <span class="cmd">find</span> . <span class="flag">-name</span> <span class="str">"*.tmp"</span> <span class="flag">-delete</span>
+<span class="prompt">$</span> <span class="cmd">find</span> . <span class="flag">-name</span> <span class="str">"*.py"</span> <span class="flag">-exec</span> wc -l {} ;`
+    },
+    /* ── ARCHIVOS ── */
+    {
+      cat: 'lfile', tag: 'tag-lfile', tagLabel: 'Archivos',
+      cmd: 'cp / mv / rm / mkdir',
+      desc: 'Crea, copia, mueve y elimina archivos y directorios.',
+      code: `<span class="comment"># Copiar</span>
+<span class="prompt">$</span> <span class="cmd">cp</span> archivo.txt destino/
+<span class="prompt">$</span> <span class="cmd">cp</span> <span class="flag">-r</span> carpeta/ destino/   <span class="comment"># recursivo</span>
+
+<span class="comment"># Mover / renombrar</span>
+<span class="prompt">$</span> <span class="cmd">mv</span> viejo.txt nuevo.txt
+<span class="prompt">$</span> <span class="cmd">mv</span> archivo.txt /otro/directorio/
+
+<span class="comment"># Eliminar</span>
+<span class="prompt">$</span> <span class="cmd">rm</span> archivo.txt
+<span class="prompt">$</span> <span class="cmd">rm</span> <span class="flag">-rf</span> carpeta/        <span class="comment"># recursivo, sin confirmar ⚠️</span>
+
+<span class="comment"># Crear directorios</span>
+<span class="prompt">$</span> <span class="cmd">mkdir</span> nueva-carpeta
+<span class="prompt">$</span> <span class="cmd">mkdir</span> <span class="flag">-p</span> a/b/c          <span class="comment"># crea toda la ruta</span>`
+    },
+    {
+      cat: 'lfile', tag: 'tag-lfile', tagLabel: 'Archivos',
+      cmd: 'cat / less / head / tail',
+      desc: 'Lee y visualiza el contenido de archivos de texto desde la terminal.',
+      code: `<span class="comment"># Ver archivo completo</span>
+<span class="prompt">$</span> <span class="cmd">cat</span> archivo.txt
+
+<span class="comment"># Navegación interactiva (q para salir)</span>
+<span class="prompt">$</span> <span class="cmd">less</span> archivo.txt
+
+<span class="comment"># Primeras / últimas líneas</span>
+<span class="prompt">$</span> <span class="cmd">head</span> <span class="flag">-20</span> archivo.txt
+<span class="prompt">$</span> <span class="cmd">tail</span> <span class="flag">-20</span> archivo.txt
+
+<span class="comment"># Seguir logs en tiempo real</span>
+<span class="prompt">$</span> <span class="cmd">tail</span> <span class="flag">-f</span> /var/log/syslog
+
+<span class="comment"># Contar líneas / palabras / bytes</span>
+<span class="prompt">$</span> <span class="cmd">wc</span> <span class="flag">-l</span> archivo.txt`
+    },
+    {
+      cat: 'lfile', tag: 'tag-lfile', tagLabel: 'Archivos',
+      cmd: 'grep',
+      desc: 'Busca patrones de texto dentro de archivos con expresiones regulares.',
+      code: `<span class="comment"># Buscar en un archivo</span>
+<span class="prompt">$</span> <span class="cmd">grep</span> <span class="str">"error"</span> app.log
+
+<span class="comment"># Opciones útiles</span>
+<span class="prompt">$</span> <span class="cmd">grep</span> <span class="flag">-i</span> <span class="str">"ERROR"</span> app.log    <span class="comment"># ignora mayúsculas</span>
+<span class="prompt">$</span> <span class="cmd">grep</span> <span class="flag">-n</span> <span class="str">"error"</span> app.log    <span class="comment"># muestra número de línea</span>
+<span class="prompt">$</span> <span class="cmd">grep</span> <span class="flag">-r</span> <span class="str">"TODO"</span> ./src/      <span class="comment"># recursivo</span>
+<span class="prompt">$</span> <span class="cmd">grep</span> <span class="flag">-v</span> <span class="str">"debug"</span> app.log    <span class="comment"># invertir (líneas que NO coinciden)</span>
+<span class="prompt">$</span> <span class="cmd">grep</span> <span class="flag">-c</span> <span class="str">"error"</span> app.log    <span class="comment"># contar coincidencias</span>
+
+<span class="comment"># Con contexto</span>
+<span class="prompt">$</span> <span class="cmd">grep</span> <span class="flag">-A 3 -B 3</span> <span class="str">"error"</span> app.log`
+    },
+    /* ── PERMISOS ── */
+    {
+      cat: 'lperm', tag: 'tag-lperm', tagLabel: 'Permisos',
+      cmd: 'chmod / chown',
+      desc: 'Controla quién puede leer, escribir o ejecutar archivos en el sistema.',
+      code: `<span class="comment"># chmod: cambiar permisos</span>
+<span class="prompt">$</span> <span class="cmd">chmod</span> 755 script.sh      <span class="comment"># rwxr-xr-x</span>
+<span class="prompt">$</span> <span class="cmd">chmod</span> 644 archivo.txt    <span class="comment"># rw-r--r--</span>
+<span class="prompt">$</span> <span class="cmd">chmod</span> +x script.sh       <span class="comment"># añadir ejecución</span>
+<span class="prompt">$</span> <span class="cmd">chmod</span> <span class="flag">-R</span> 755 carpeta/    <span class="comment"># recursivo</span>
+
+<span class="comment"># Tabla rápida de octales</span>
+<span class="comment">7 = rwx   6 = rw-   5 = r-x</span>
+<span class="comment">4 = r--   0 = ---</span>
+
+<span class="comment"># chown: cambiar propietario</span>
+<span class="prompt">$</span> <span class="cmd">chown</span> usuario archivo.txt
+<span class="prompt">$</span> <span class="cmd">chown</span> usuario:grupo archivo.txt
+<span class="prompt">$</span> <span class="cmd">chown</span> <span class="flag">-R</span> usuario carpeta/`
+    },
+    {
+      cat: 'lperm', tag: 'tag-lperm', tagLabel: 'Permisos',
+      cmd: 'sudo / su',
+      desc: 'Ejecuta comandos con privilegios de superusuario o cambia de usuario.',
+      code: `<span class="comment"># Ejecutar comando como root</span>
+<span class="prompt">$</span> <span class="cmd">sudo</span> apt update
+<span class="prompt">$</span> <span class="cmd">sudo</span> <span class="flag">-i</span>             <span class="comment"># iniciar sesión como root</span>
+<span class="prompt">$</span> <span class="cmd">sudo</span> <span class="flag">-u</span> www-data whoami <span class="comment"># ejecutar como otro usuario</span>
+
+<span class="comment"># Cambiar de usuario</span>
+<span class="prompt">$</span> <span class="cmd">su</span> - usuario        <span class="comment"># con entorno del usuario</span>
+<span class="prompt">$</span> <span class="cmd">su</span> -                <span class="comment"># sesión root con su entorno</span>
+
+<span class="comment"># Ver permisos de un archivo</span>
+<span class="prompt">$</span> <span class="cmd">ls</span> <span class="flag">-l</span> archivo.txt
+<span class="prompt">$</span> <span class="cmd">stat</span> archivo.txt`
+    },
+    /* ── PROCESOS ── */
+    {
+      cat: 'lproc', tag: 'tag-lproc', tagLabel: 'Procesos',
+      cmd: 'ps / top / htop / kill',
+      desc: 'Monitorea y gestiona los procesos en ejecución del sistema.',
+      code: `<span class="comment"># Ver procesos</span>
+<span class="prompt">$</span> <span class="cmd">ps</span> aux              <span class="comment"># todos los procesos</span>
+<span class="prompt">$</span> <span class="cmd">ps</span> aux | <span class="cmd">grep</span> nginx <span class="comment"># filtrar por nombre</span>
+
+<span class="comment"># Monitor interactivo</span>
+<span class="prompt">$</span> <span class="cmd">top</span>                 <span class="comment"># monitor básico (q para salir)</span>
+<span class="prompt">$</span> <span class="cmd">htop</span>                <span class="comment"># monitor mejorado</span>
+
+<span class="comment"># Terminar procesos</span>
+<span class="prompt">$</span> <span class="cmd">kill</span> 1234           <span class="comment"># señal SIGTERM (graceful)</span>
+<span class="prompt">$</span> <span class="cmd">kill</span> <span class="flag">-9</span> 1234        <span class="comment"># señal SIGKILL (forzado)</span>
+<span class="prompt">$</span> <span class="cmd">killall</span> nginx        <span class="comment"># por nombre</span>
+<span class="prompt">$</span> <span class="cmd">pkill</span> <span class="flag">-f</span> python      <span class="comment"># por patrón</span>`
+    },
+    {
+      cat: 'lproc', tag: 'tag-lproc', tagLabel: 'Procesos',
+      cmd: 'jobs / bg / fg / nohup',
+      desc: 'Gestiona procesos en segundo plano y ejecución desatendida.',
+      code: `<span class="comment"># Ejecutar en background</span>
+<span class="prompt">$</span> <span class="cmd">comando</span> &amp;
+
+<span class="comment"># Suspender proceso actual</span>
+<span class="prompt">$</span> Ctrl+Z
+
+<span class="comment"># Ver jobs activos</span>
+<span class="prompt">$</span> <span class="cmd">jobs</span>
+
+<span class="comment"># Traer al frente / enviar al fondo</span>
+<span class="prompt">$</span> <span class="cmd">fg</span> %1
+<span class="prompt">$</span> <span class="cmd">bg</span> %1
+
+<span class="comment"># Ejecutar sin terminal (inmune a cierre de sesión)</span>
+<span class="prompt">$</span> <span class="cmd">nohup</span> ./servidor.sh &amp;
+<span class="prompt">$</span> <span class="cmd">nohup</span> ./script.sh > output.log 2>&amp;1 &amp;</span>`
+    },
+    /* ── RED ── */
+    {
+      cat: 'lnet', tag: 'tag-lnet', tagLabel: 'Red',
+      cmd: 'curl / wget',
+      desc: 'Descarga archivos y realiza peticiones HTTP desde la terminal.',
+      code: `<span class="comment"># curl: peticiones HTTP</span>
+<span class="prompt">$</span> <span class="cmd">curl</span> https://example.com
+<span class="prompt">$</span> <span class="cmd">curl</span> <span class="flag">-O</span> https://example.com/archivo.zip  <span class="comment"># descargar</span>
+<span class="prompt">$</span> <span class="cmd">curl</span> <span class="flag">-L</span> url                             <span class="comment"># seguir redirecciones</span>
+<span class="prompt">$</span> <span class="cmd">curl</span> <span class="flag">-s</span> https://api.example.com/data     <span class="comment"># silencioso</span>
+<span class="prompt">$</span> <span class="cmd">curl</span> <span class="flag">-X POST -H</span> <span class="str">"Content-Type: application/json"</span>      <span class="flag">-d</span> <span class="str">'{"key":"value"}'</span> https://api.example.com
+
+<span class="comment"># wget: descargar archivos</span>
+<span class="prompt">$</span> <span class="cmd">wget</span> https://example.com/archivo.zip
+<span class="prompt">$</span> <span class="cmd">wget</span> <span class="flag">-r</span> https://example.com             <span class="comment"># recursivo</span>`
+    },
+    {
+      cat: 'lnet', tag: 'tag-lnet', tagLabel: 'Red',
+      cmd: 'ssh / scp / rsync',
+      desc: 'Conexión remota segura y transferencia de archivos entre máquinas.',
+      code: `<span class="comment"># SSH: conectar a servidor remoto</span>
+<span class="prompt">$</span> <span class="cmd">ssh</span> usuario@servidor.com
+<span class="prompt">$</span> <span class="cmd">ssh</span> <span class="flag">-p</span> 2222 usuario@servidor.com
+<span class="prompt">$</span> <span class="cmd">ssh</span> <span class="flag">-i</span> ~/.ssh/clave.pem usuario@servidor.com
+
+<span class="comment"># SCP: copiar archivos por SSH</span>
+<span class="prompt">$</span> <span class="cmd">scp</span> archivo.txt usuario@servidor:/ruta/
+<span class="prompt">$</span> <span class="cmd">scp</span> <span class="flag">-r</span> carpeta/ usuario@servidor:/ruta/
+
+<span class="comment"># rsync: sincronización eficiente</span>
+<span class="prompt">$</span> <span class="cmd">rsync</span> <span class="flag">-avz</span> ./src/ usuario@servidor:/destino/
+<span class="prompt">$</span> <span class="cmd">rsync</span> <span class="flag">-avz --delete</span> src/ destino/  <span class="comment"># espejo exacto</span>`
+    },
+    /* ── SHELL ── */
+    {
+      cat: 'lshell', tag: 'tag-lshell', tagLabel: 'Shell',
+      cmd: 'Pipes, redirección y variables',
+      desc: 'Combina comandos con pipes y gestiona la entrada/salida estándar.',
+      code: `<span class="comment"># Pipe: pasar salida como entrada</span>
+<span class="prompt">$</span> <span class="cmd">ls</span> <span class="flag">-la</span> | <span class="cmd">grep</span> <span class="str">".txt"</span>
+<span class="prompt">$</span> <span class="cmd">cat</span> app.log | <span class="cmd">grep</span> error | <span class="cmd">tail</span> <span class="flag">-20</span>
+
+<span class="comment"># Redirección</span>
+<span class="prompt">$</span> <span class="cmd">echo</span> <span class="str">"hola"</span> > archivo.txt    <span class="comment"># sobreescribir</span>
+<span class="prompt">$</span> <span class="cmd">echo</span> <span class="str">"más"</span> >> archivo.txt    <span class="comment"># añadir</span>
+<span class="prompt">$</span> <span class="cmd">comando</span> 2> errores.log       <span class="comment"># redirigir stderr</span>
+<span class="prompt">$</span> <span class="cmd">comando</span> > out.log 2>&amp;1       <span class="comment"># stdout + stderr</span>
+
+<span class="comment"># Variables</span>
+<span class="prompt">$</span> MI_VAR=<span class="str">"hola"</span>
+<span class="prompt">$</span> <span class="cmd">echo</span> $MI_VAR
+<span class="prompt">$</span> <span class="cmd">export</span> PATH=$PATH:/usr/local/bin`
+    },
+    {
+      cat: 'lshell', tag: 'tag-lshell', tagLabel: 'Shell',
+      cmd: 'alias / history / shortcuts',
+      desc: 'Atajos y productividad en la terminal para trabajar más rápido.',
+      code: `<span class="comment"># Alias: atajos de comandos</span>
+<span class="prompt">$</span> <span class="cmd">alias</span> ll=<span class="str">'ls -la'</span>
+<span class="prompt">$</span> <span class="cmd">alias</span> gs=<span class="str">'git status'</span>
+<span class="comment"># Para que persistan → agregar en ~/.bashrc o ~/.zshrc</span>
+
+<span class="comment"># Historial</span>
+<span class="prompt">$</span> <span class="cmd">history</span>
+<span class="prompt">$</span> <span class="cmd">history</span> | <span class="cmd">grep</span> docker
+<span class="prompt">$</span> !! <span class="comment">           # repetir último comando</span>
+<span class="prompt">$</span> !git <span class="comment">         # repetir último comando que empieza con git</span>
+Ctrl+R         <span class="comment"># búsqueda interactiva en historial</span>
+
+<span class="comment"># Atajos de teclado</span>
+<span class="comment">Ctrl+C → cancelar | Ctrl+L → limpiar | Ctrl+A → inicio línea</span>`
+    },
+    /* ── PAQUETES ── */
+    {
+      cat: 'lpkg', tag: 'tag-lpkg', tagLabel: 'Paquetes',
+      cmd: 'apt (Debian/Ubuntu)',
+      desc: 'Gestiona paquetes en distribuciones basadas en Debian con APT.',
+      code: `<span class="comment"># Actualizar lista de paquetes</span>
+<span class="prompt">$</span> <span class="cmd">sudo apt update</span>
+
+<span class="comment"># Actualizar paquetes instalados</span>
+<span class="prompt">$</span> <span class="cmd">sudo apt upgrade</span>
+
+<span class="comment"># Instalar / desinstalar</span>
+<span class="prompt">$</span> <span class="cmd">sudo apt install</span> nginx
+<span class="prompt">$</span> <span class="cmd">sudo apt remove</span> nginx
+<span class="prompt">$</span> <span class="cmd">sudo apt purge</span> nginx    <span class="comment"># elimina también configuración</span>
+
+<span class="comment"># Buscar paquetes</span>
+<span class="prompt">$</span> <span class="cmd">apt search</span> nginx
+<span class="prompt">$</span> <span class="cmd">apt show</span> nginx
+
+<span class="comment"># Limpiar caché</span>
+<span class="prompt">$</span> <span class="cmd">sudo apt autoremove</span>
+<span class="prompt">$</span> <span class="cmd">sudo apt clean</span>`
+    },
+    {
+      cat: 'lpkg', tag: 'tag-lpkg', tagLabel: 'Paquetes',
+      cmd: 'dnf / pacman / snap',
+      desc: 'Gestores de paquetes para otras distribuciones Linux populares.',
+      code: `<span class="comment"># dnf (Fedora/RHEL/CentOS)</span>
+<span class="prompt">$</span> <span class="cmd">sudo dnf update</span>
+<span class="prompt">$</span> <span class="cmd">sudo dnf install</span> nginx
+<span class="prompt">$</span> <span class="cmd">sudo dnf remove</span> nginx
+
+<span class="comment"># pacman (Arch Linux / Manjaro)</span>
+<span class="prompt">$</span> <span class="cmd">sudo pacman</span> <span class="flag">-Syu</span>        <span class="comment"># actualizar todo</span>
+<span class="prompt">$</span> <span class="cmd">sudo pacman</span> <span class="flag">-S</span> nginx     <span class="comment"># instalar</span>
+<span class="prompt">$</span> <span class="cmd">sudo pacman</span> <span class="flag">-R</span> nginx     <span class="comment"># desinstalar</span>
+<span class="prompt">$</span> <span class="cmd">sudo pacman</span> <span class="flag">-Ss</span> nginx    <span class="comment"># buscar</span>
+
+<span class="comment"># snap (universal, multi-distro)</span>
+<span class="prompt">$</span> <span class="cmd">sudo snap install</span> code <span class="flag">--classic</span>
+<span class="prompt">$</span> <span class="cmd">snap list</span>`
+    },
+  ],
+
+  /* ══════════════════════════════
+     GITHUB CLI
+  ══════════════════════════════ */
+  gh: [
+    /* ── AUTH ── */
+    {
+      cat: 'ghauth', tag: 'tag-ghauth', tagLabel: 'Auth',
+      cmd: 'gh auth login / status',
+      desc: 'Instala la CLI de GitHub y autentícate con tu cuenta.',
+      code: `<span class="comment"># Instalar gh (Debian/Ubuntu)</span>
+<span class="prompt">$</span> <span class="cmd">sudo apt install</span> gh
+
+<span class="comment"># macOS</span>
+<span class="prompt">$</span> <span class="cmd">brew install</span> gh
+
+<span class="comment"># Autenticarse</span>
+<span class="prompt">$</span> <span class="cmd">gh auth login</span>
+<span class="comment"># Elige: GitHub.com → HTTPS → Login with browser</span>
+
+<span class="comment"># Ver estado de autenticación</span>
+<span class="prompt">$</span> <span class="cmd">gh auth status</span>
+
+<span class="comment"># Cerrar sesión</span>
+<span class="prompt">$</span> <span class="cmd">gh auth logout</span>`
+    },
+    /* ── REPOS ── */
+    {
+      cat: 'ghrepo', tag: 'tag-ghrepo', tagLabel: 'Repos',
+      cmd: 'gh repo create / clone / view',
+      desc: 'Crea, clona y explora repositorios de GitHub desde la terminal.',
+      code: `<span class="comment"># Crear repositorio</span>
+<span class="prompt">$</span> <span class="cmd">gh repo create</span> mi-proyecto <span class="flag">--public</span>
+<span class="prompt">$</span> <span class="cmd">gh repo create</span> mi-proyecto <span class="flag">--private --clone</span>
+
+<span class="comment"># Clonar</span>
+<span class="prompt">$</span> <span class="cmd">gh repo clone</span> usuario/repo
+<span class="prompt">$</span> <span class="cmd">gh repo clone</span> usuario/repo -- <span class="flag">--depth=1</span>
+
+<span class="comment"># Ver info del repo</span>
+<span class="prompt">$</span> <span class="cmd">gh repo view</span>
+<span class="prompt">$</span> <span class="cmd">gh repo view</span> usuario/repo <span class="flag">--web</span>  <span class="comment"># abrir en navegador</span>
+
+<span class="comment"># Listar tus repos</span>
+<span class="prompt">$</span> <span class="cmd">gh repo list</span>
+<span class="prompt">$</span> <span class="cmd">gh repo list</span> <span class="flag">--limit 20 --public</span>`
+    },
+    {
+      cat: 'ghrepo', tag: 'tag-ghrepo', tagLabel: 'Repos',
+      cmd: 'gh repo fork / sync / delete',
+      desc: 'Haz fork de repositorios, sincroniza tu fork y gestiona repos.',
+      code: `<span class="comment"># Fork de un repositorio</span>
+<span class="prompt">$</span> <span class="cmd">gh repo fork</span> usuario/repo
+<span class="prompt">$</span> <span class="cmd">gh repo fork</span> usuario/repo <span class="flag">--clone</span>
+
+<span class="comment"># Sincronizar fork con upstream</span>
+<span class="prompt">$</span> <span class="cmd">gh repo sync</span>
+<span class="prompt">$</span> <span class="cmd">gh repo sync</span> <span class="flag">--branch</span> main
+
+<span class="comment"># Renombrar repositorio</span>
+<span class="prompt">$</span> <span class="cmd">gh repo rename</span> nuevo-nombre
+
+<span class="comment"># Archivar / borrar</span>
+<span class="prompt">$</span> <span class="cmd">gh repo archive</span>
+<span class="prompt">$</span> <span class="cmd">gh repo delete</span> usuario/repo <span class="flag">--confirm</span></span>`
+    },
+    /* ── PULL REQUESTS ── */
+    {
+      cat: 'ghpr', tag: 'tag-ghpr', tagLabel: 'Pull Requests',
+      cmd: 'gh pr create / list / view',
+      desc: 'Crea y visualiza pull requests sin salir de la terminal.',
+      code: `<span class="comment"># Crear PR (interactivo)</span>
+<span class="prompt">$</span> <span class="cmd">gh pr create</span>
+<span class="prompt">$</span> <span class="cmd">gh pr create</span> <span class="flag">--title</span> <span class="str">"Fix login bug"</span> <span class="flag">--body</span> <span class="str">"Descripción"</span>
+<span class="prompt">$</span> <span class="cmd">gh pr create</span> <span class="flag">--draft</span>       <span class="comment"># como borrador</span>
+<span class="prompt">$</span> <span class="cmd">gh pr create</span> <span class="flag">--web</span>         <span class="comment"># abrir formulario en navegador</span>
+
+<span class="comment"># Listar PRs</span>
+<span class="prompt">$</span> <span class="cmd">gh pr list</span>
+<span class="prompt">$</span> <span class="cmd">gh pr list</span> <span class="flag">--state</span> closed
+<span class="prompt">$</span> <span class="cmd">gh pr list</span> <span class="flag">--author</span> @me
+
+<span class="comment"># Ver PR</span>
+<span class="prompt">$</span> <span class="cmd">gh pr view</span> 42
+<span class="prompt">$</span> <span class="cmd">gh pr view</span> <span class="flag">--web</span>`
+    },
+    {
+      cat: 'ghpr', tag: 'tag-ghpr', tagLabel: 'Pull Requests',
+      cmd: 'gh pr checkout / merge / review',
+      desc: 'Revisa, aprueba y fusiona pull requests desde la línea de comandos.',
+      code: `<span class="comment"># Checkout a una PR localmente</span>
+<span class="prompt">$</span> <span class="cmd">gh pr checkout</span> 42
+
+<span class="comment"># Revisar</span>
+<span class="prompt">$</span> <span class="cmd">gh pr review</span> 42 <span class="flag">--approve</span>
+<span class="prompt">$</span> <span class="cmd">gh pr review</span> 42 <span class="flag">--request-changes</span> <span class="flag">-b</span> <span class="str">"Necesita tests"</span>
+<span class="prompt">$</span> <span class="cmd">gh pr review</span> 42 <span class="flag">--comment</span> <span class="flag">-b</span> <span class="str">"LGTM"</span>
+
+<span class="comment"># Merge</span>
+<span class="prompt">$</span> <span class="cmd">gh pr merge</span> 42
+<span class="prompt">$</span> <span class="cmd">gh pr merge</span> 42 <span class="flag">--squash</span>
+<span class="prompt">$</span> <span class="cmd">gh pr merge</span> 42 <span class="flag">--rebase</span>
+
+<span class="comment"># Cerrar sin hacer merge</span>
+<span class="prompt">$</span> <span class="cmd">gh pr close</span> 42`
+    },
+    /* ── ISSUES ── */
+    {
+      cat: 'ghiss', tag: 'tag-ghiss', tagLabel: 'Issues',
+      cmd: 'gh issue create / list / view',
+      desc: 'Gestiona issues del repositorio: crea, filtra, asigna y cierra.',
+      code: `<span class="comment"># Crear issue</span>
+<span class="prompt">$</span> <span class="cmd">gh issue create</span>
+<span class="prompt">$</span> <span class="cmd">gh issue create</span> <span class="flag">--title</span> <span class="str">"Bug en login"</span> <span class="flag">--body</span> <span class="str">"Descripción"</span>
+<span class="prompt">$</span> <span class="cmd">gh issue create</span> <span class="flag">--label</span> <span class="str">"bug,priority:high"</span>
+<span class="prompt">$</span> <span class="cmd">gh issue create</span> <span class="flag">--assignee</span> @me
+
+<span class="comment"># Listar</span>
+<span class="prompt">$</span> <span class="cmd">gh issue list</span>
+<span class="prompt">$</span> <span class="cmd">gh issue list</span> <span class="flag">--label</span> bug
+<span class="prompt">$</span> <span class="cmd">gh issue list</span> <span class="flag">--assignee</span> @me
+
+<span class="comment"># Ver y cerrar</span>
+<span class="prompt">$</span> <span class="cmd">gh issue view</span> 15 <span class="flag">--web</span>
+<span class="prompt">$</span> <span class="cmd">gh issue close</span> 15`
+    },
+    /* ── ACTIONS ── */
+    {
+      cat: 'ghact', tag: 'tag-ghact', tagLabel: 'Actions',
+      cmd: 'gh run list / view / watch',
+      desc: 'Monitorea y gestiona ejecuciones de GitHub Actions desde la terminal.',
+      code: `<span class="comment"># Listar ejecuciones recientes</span>
+<span class="prompt">$</span> <span class="cmd">gh run list</span>
+<span class="prompt">$</span> <span class="cmd">gh run list</span> <span class="flag">--limit 10</span>
+<span class="prompt">$</span> <span class="cmd">gh run list</span> <span class="flag">--workflow</span> ci.yml
+
+<span class="comment"># Ver detalle de una ejecución</span>
+<span class="prompt">$</span> <span class="cmd">gh run view</span> 123456789
+
+<span class="comment"># Seguir en tiempo real</span>
+<span class="prompt">$</span> <span class="cmd">gh run watch</span>
+
+<span class="comment"># Descargar artefactos</span>
+<span class="prompt">$</span> <span class="cmd">gh run download</span> 123456789
+
+<span class="comment"># Re-ejecutar workflow fallido</span>
+<span class="prompt">$</span> <span class="cmd">gh run rerun</span> 123456789
+<span class="prompt">$</span> <span class="cmd">gh run rerun</span> <span class="flag">--failed</span>  <span class="comment"># solo los jobs fallidos</span>`
+    },
+    {
+      cat: 'ghact', tag: 'tag-ghact', tagLabel: 'Actions',
+      cmd: 'gh workflow run / list',
+      desc: 'Dispara workflows manualmente y gestiona los flujos de CI/CD.',
+      code: `<span class="comment"># Listar workflows</span>
+<span class="prompt">$</span> <span class="cmd">gh workflow list</span>
+
+<span class="comment"># Habilitar / deshabilitar</span>
+<span class="prompt">$</span> <span class="cmd">gh workflow enable</span> ci.yml
+<span class="prompt">$</span> <span class="cmd">gh workflow disable</span> ci.yml
+
+<span class="comment"># Disparar workflow manual (workflow_dispatch)</span>
+<span class="prompt">$</span> <span class="cmd">gh workflow run</span> ci.yml
+<span class="prompt">$</span> <span class="cmd">gh workflow run</span> ci.yml <span class="flag">--ref</span> develop
+<span class="prompt">$</span> <span class="cmd">gh workflow run</span> ci.yml <span class="flag">-f</span> environment=production
+
+<span class="comment"># Ver logs</span>
+<span class="prompt">$</span> <span class="cmd">gh run view</span> <span class="flag">--log</span>
+<span class="prompt">$</span> <span class="cmd">gh run view</span> <span class="flag">--log-failed</span>`
+    },
+  ],
+
 };
+
+/* ═══════════════════════════════
+   MOBILE MENU
+═══════════════════════════════ */
+const menuBtn = document.getElementById('menu-btn');
+const sidebar = document.querySelector('aside');
+const overlay = document.getElementById('overlay');
+
+function toggleMenu() {
+  sidebar.classList.toggle('open');
+  overlay.classList.toggle('open');
+}
+menuBtn.addEventListener('click', toggleMenu);
+overlay.addEventListener('click', toggleMenu);
 
 /* ═══════════════════════════════
    STATE
 ═══════════════════════════════ */
 let currentTopic  = 'git';
-let currentFilter = { git: 'all', termux: 'all', cmd: 'all', ps: 'all' };
+let currentFilter = { git: 'all', termux: 'all', cmd: 'all', ps: 'all', vim: 'all', venv: 'all', linux: 'all', gh: 'all' };
 let searchQuery   = '';
 
 /* ═══════════════════════════════
    RENDER
 ═══════════════════════════════ */
 function renderCards(topic) {
-  const filter = currentFilter[topic];
+  const container = document.getElementById(`${topic}-cards`);
+  if (!container) return;
+  const filter = currentFilter[topic] || 'all';
   const q = searchQuery.toLowerCase();
+
   const items = DATA[topic].filter(item => {
     const matchFilter = filter === 'all' || item.cat === filter;
     const matchSearch = !q ||
       item.cmd.toLowerCase().includes(q) ||
       item.desc.toLowerCase().includes(q) ||
-      item.tagLabel.toLowerCase().includes(q);
+      item.code.toLowerCase().includes(q);
     return matchFilter && matchSearch;
   });
-  const container = document.getElementById(topic + '-cards');
-  if (items.length === 0) {
-    container.innerHTML = `
-      <div class="empty">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        </svg>
-        <div>No se encontraron comandos para <strong>"${escHtml(searchQuery)}"</strong></div>
-      </div>`;
-    return;
-  }
-  container.innerHTML = items.map(item => `
-    <div class="card" data-cat="${item.cat}">
+
+  container.innerHTML = items.length ? items.map(item => `
+    <div class="card">
       <div class="card-top">
-        <span class="cmd-name">${escHtml(item.cmd)}</span>
+        <h3 class="cmd-name">${item.cmd}</h3>
         <span class="tag ${item.tag}">${item.tagLabel}</span>
       </div>
-      <p class="card-desc">${escHtml(item.desc)}</p>
+      <p class="card-desc">${item.desc}</p>
       <div class="code-block">
-        <pre>${item.code}</pre>
-        <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+        <button class="copy-btn" onclick="copyCode(this)" title="Copiar">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+        </button>
+        <pre><code>${item.code}</code></pre>
       </div>
     </div>
-  `).join('');
+  `).join('') : `<div class="empty">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".4">
+      <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+    </svg>
+    <p>Sin resultados para "<strong>${q || filter}</strong>"</p>
+  </div>`;
 }
 
-function escHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+/* ═══════════════════════════════
+   COPY
+═══════════════════════════════ */
+function copyCode(btn) {
+  const code = btn.closest('.code-block').querySelector('code');
+  const text = code.innerText || code.textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.classList.add('copied');
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`;
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
+    }, 1800);
+  });
 }
 
-function switchTopic(topic, btn) {
-  currentTopic = topic;
-  document.querySelectorAll('.topic-section').forEach(s => s.classList.remove('visible'));
-  document.getElementById('section-' + topic).classList.add('visible');
-  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+/* ═══════════════════════════════
+   FILTER
+═══════════════════════════════ */
+function filterCards(topic, cat, btn) {
+  currentFilter[topic] = cat;
+  const section = document.getElementById(`section-${topic}`);
+  section.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  searchQuery = '';
-  document.getElementById('search').value = '';
   renderCards(topic);
   updateCount();
 }
 
-function filterCards(topic, cat, btn) {
-  currentFilter[topic] = cat;
-  const btns = document.querySelectorAll('#filters-' + topic + ' .filter-btn');
-  btns.forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderCards(topic);
-}
-
+/* ═══════════════════════════════
+   SEARCH
+═══════════════════════════════ */
 document.getElementById('search').addEventListener('input', function() {
   searchQuery = this.value.trim();
   renderCards(currentTopic);
   updateCount();
 });
 
-function copyCode(btn) {
-  const pre = btn.previousElementSibling;
-  const text = pre.innerText || pre.textContent;
-  navigator.clipboard.writeText(text).then(() => {
-    btn.textContent = '✓ Copiado';
-    btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copied'); }, 1800);
-  });
+/* ═══════════════════════════════
+   SWITCH TOPIC
+═══════════════════════════════ */
+function switchTopic(topic, el) {
+  currentTopic = topic;
+  searchQuery  = '';
+  document.getElementById('search').value = '';
+
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+
+  document.querySelectorAll('.topic-section').forEach(s => s.classList.remove('visible'));
+  document.getElementById(`section-${topic}`).classList.add('visible');
+
+  // Cerrar menú en móviles si está abierto
+  sidebar.classList.remove('open');
+  overlay.classList.remove('open');
+
+  renderCards(topic);
+  updateCount();
 }
 
+/* ═══════════════════════════════
+   COUNT BADGE
+═══════════════════════════════ */
 function updateCount() {
-  const q = searchQuery.toLowerCase();
-  const topics = ['git', 'termux', 'cmd', 'ps'];
+  const topics = ['git', 'termux', 'cmd', 'ps', 'vim', 'venv', 'linux', 'gh'];
   let total = 0;
   topics.forEach(t => {
-    const n = DATA[t].filter(i =>
-      !q || i.cmd.toLowerCase().includes(q) || i.desc.toLowerCase().includes(q) || i.tagLabel.toLowerCase().includes(q)
-    ).length;
-    document.getElementById('cnt-' + t).textContent = n;
-    total += n;
+    const filter = currentFilter[t] || 'all';
+    const q = searchQuery.toLowerCase();
+    const n = DATA[t].filter(item => {
+      const mf = filter === 'all' || item.cat === filter;
+      const ms = !q || item.cmd.toLowerCase().includes(q) || item.desc.toLowerCase().includes(q) || item.code.toLowerCase().includes(q);
+      return mf && ms;
+    }).length;
+    const el = document.getElementById(`cnt-${t}`);
+    if (el) el.textContent = n;
+    if (t === currentTopic) total = n;
   });
-  document.getElementById('total-count').textContent =
-    q ? `${total} resultado${total !== 1 ? 's' : ''}` : `${Object.values(DATA).reduce((a, arr) => a + arr.length, 0)} comandos`;
+  const badge = document.getElementById('total-count');
+  if (badge) badge.textContent = total;
 }
 
+/* ═══════════════════════════════
+   INIT
+═══════════════════════════════ */
 Object.keys(DATA).forEach(t => renderCards(t));
 updateCount();
+
 </script>
 </body>
 </html>
