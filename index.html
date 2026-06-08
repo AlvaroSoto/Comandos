@@ -2552,9 +2552,8 @@ function switchTopic(topic, el) {
   document.querySelectorAll('.topic-section').forEach(s => s.classList.remove('visible'));
   document.getElementById(`section-${topic}`).classList.add('visible');
 
-  // Cerrar menú en móviles si está abierto
-  sidebar.classList.remove('open');
-  overlay.classList.remove('open');
+  document.querySelector('aside').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
 
   renderCards(topic);
   updateCount();
@@ -2565,21 +2564,26 @@ function switchTopic(topic, el) {
 ═══════════════════════════════ */
 function updateCount() {
   const topics = ['git', 'termux', 'cmd', 'ps', 'vim', 'venv', 'linux', 'gh'];
-  let total = 0;
   topics.forEach(t => {
     const filter = currentFilter[t] || 'all';
     const q = searchQuery.toLowerCase();
     const n = DATA[t].filter(item => {
       const mf = filter === 'all' || item.cat === filter;
-      const ms = !q || item.cmd.toLowerCase().includes(q) || item.desc.toLowerCase().includes(q) || item.code.toLowerCase().includes(q);
+      const ms = !q || item.cmd.toLowerCase().includes(q) || item.desc.toLowerCase().includes(q);
       return mf && ms;
     }).length;
     const el = document.getElementById(`cnt-${t}`);
     if (el) el.textContent = n;
-    if (t === currentTopic) total = n;
   });
+  const cur = DATA[currentTopic].filter(item => {
+    const filter = currentFilter[currentTopic] || 'all';
+    const q = searchQuery.toLowerCase();
+    const mf = filter === 'all' || item.cat === filter;
+    const ms = !q || item.cmd.toLowerCase().includes(q) || item.desc.toLowerCase().includes(q);
+    return mf && ms;
+  }).length;
   const badge = document.getElementById('total-count');
-  if (badge) badge.textContent = total;
+  if (badge) badge.textContent = cur;
 }
 
 /* ═══════════════════════════════
