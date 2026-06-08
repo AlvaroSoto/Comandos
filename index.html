@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comandos — Guía de Referencia</title>
+<style>
+  :root {
+    --bg: #282a36;
+    --bg2: #343746;
+    --bg3: #44475a;
+    --bg4: #6272a4;
+    --border: #44475a;
+    --text: #f8f8f2;
+    --text2: #bfbfc9;
+    --text3: #6272a4;
+    --accent: #8be9fd;
+    --accent2: #ff79c6;
+    --green: #50fa7b;
+    --orange: #ffb86c;
+    --purple: #bd93f9;
+    --red: #ff5555;
+    --git: #ff5555;
+    --termux: #50fa7b;
+    --cmd: #8be9fd;
+    --ps: #bd93f9;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    text-decoration: none;
+  }
+  .logo svg { flex-shrink: 0; }
+
+  .search-wrap {
+    flex: 1;
+    max-width: 420px;
+    margin: 0 32px;
+    position: relative;
+  }
+  .search-wrap svg {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text3);
+    pointer-events: none;
+  }
+  #search {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-size: 14px;
+    padding: 8px 12px 8px 36px;
+    outline: none;
+    transition: border-color .15s;
+  }
+  #search:focus { border-color: var(--accent2); }
+  #search::placeholder { color: var(--text3); }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .badge-count {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 12px;
+    color: var(--text2);
+  }
+
+  /* ── LAYOUT ── */
+  .layout {
+    display: flex;
+    flex: 1;
+    max-width: 1280px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 0;
+  }
+
+  /* ── SIDEBAR ── */
+  aside {
+    width: 220px;
+    flex-shrink: 0;
+    padding: 24px 16px;
+    border-right: 1px solid var(--border);
+    position: sticky;
+    top: 56px;
+    height: calc(100vh - 56px);
+    overflow-y: auto;
+  }
+
+  .sidebar-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--text3);
+    padding: 0 8px;
+    margin-bottom: 8px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text2);
+    transition: background .12s, color .12s;
+    margin-bottom: 2px;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+  }
+  .nav-item:hover { background: var(--bg3); color: var(--text); }
+  .nav-item.active { background: var(--bg3); color: var(--text); font-weight: 500; }
+  .nav-item .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .nav-item .count {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--text3);
+    background: var(--bg4);
+    border-radius: 10px;
+    padding: 1px 7px;
+  }
+
+  /* ── MAIN ── */
+  main {
+    flex: 1;
+    padding: 32px 40px;
+    overflow: hidden;
+  }
+
+  /* ── TOPIC HEADER ── */
+  .topic-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 32px;
+  }
+
+  .topic-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    flex-shrink: 0;
+  }
+
+  .topic-icon.git    { background: rgba(240,81,51,.15); }
+  .topic-icon.termux { background: rgba(168,255,120,.1); }
+  .topic-icon.cmd    { background: rgba(0,120,212,.15); }
+  .topic-icon.ps     { background: rgba(83,145,254,.12); }
+
+  .topic-info h1 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .topic-info p {
+    color: var(--text2);
+    font-size: 14px;
+    line-height: 1.5;
+    max-width: 620px;
+  }
+
+  /* ── FILTERS ── */
+  .filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+  }
+
+  .filter-btn {
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    border: 1px solid var(--border);
+    background: var(--bg2);
+    color: var(--text2);
+    cursor: pointer;
+    transition: all .12s;
+  }
+  .filter-btn:hover { border-color: var(--accent2); color: var(--text); }
+  .filter-btn.active { background: var(--accent2); border-color: var(--accent2); color: #fff; font-weight: 500; }
+
+  /* ── SECTION ── */
+  .section { margin-bottom: 40px; }
+
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--text3);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── COMMAND CARDS ── */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 12px;
+  }
+
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    transition: border-color .15s, transform .1s;
+    position: relative;
+  }
+  .card:hover {
+    border-color: var(--bg4);
+    transform: translateY(-1px);
+  }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .cmd-name {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .tag {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+  }
+  /* Git tags */
+  .tag-init    { background: rgba(63,185,80,.12);  color: var(--green); }
+  .tag-branch  { background: rgba(188,140,255,.12); color: var(--purple); }
+  .tag-remote  { background: rgba(88,166,255,.12);  color: var(--accent); }
+  .tag-history { background: rgba(210,153,34,.12);  color: var(--orange); }
+  .tag-undo    { background: rgba(248,81,73,.12);   color: var(--red); }
+  .tag-stage   { background: rgba(63,185,80,.12);   color: var(--green); }
+  .tag-config  { background: rgba(139,148,158,.15); color: var(--text2); }
+  /* Termux tags */
+  .tag-pkg     { background: rgba(168,255,120,.12); color: var(--termux); }
+  .tag-sys     { background: rgba(88,166,255,.12);  color: var(--accent); }
+  .tag-net     { background: rgba(210,153,34,.12);  color: var(--orange); }
+  .tag-shell   { background: rgba(188,140,255,.12); color: var(--purple); }
+  .tag-file    { background: rgba(63,185,80,.12);   color: var(--green); }
+  .tag-editor  { background: rgba(248,81,73,.12);   color: var(--red); }
+  /* CMD tags */
+  .tag-nav     { background: rgba(0,120,212,.12);   color: var(--cmd); }
+  .tag-proc    { background: rgba(248,81,73,.12);   color: var(--red); }
+  .tag-util    { background: rgba(139,148,158,.15); color: var(--text2); }
+  /* PS tags */
+  .tag-pipe    { background: rgba(83,145,254,.12);  color: var(--ps); }
+  .tag-obj     { background: rgba(188,140,255,.12); color: var(--purple); }
+
+  .card-desc {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+
+  .code-block {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  pre {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+
+  pre .comment { color: var(--text3); }
+  pre .prompt   { color: var(--green); user-select: none; }
+  pre .prompt-ps { color: var(--ps); user-select: none; }
+  pre .prompt-cmd { color: var(--cmd); user-select: none; }
+  pre .cmd      { color: var(--accent); }
+  pre .flag     { color: var(--orange); }
+  pre .str      { color: #f1fa8c; }
+  pre .kw       { color: var(--accent2); }
+
+  .copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 11px;
+    color: var(--text3);
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity .12s, color .12s;
+  }
+  .code-block:hover .copy-btn { opacity: 1; }
+  .copy-btn:hover { color: var(--text); }
+  .copy-btn.copied { color: var(--green); }
+
+  /* ── NO RESULTS ── */
+  .empty {
+    grid-column: 1/-1;
+    padding: 48px;
+    text-align: center;
+    color: var(--text3);
+    font-size: 14px;
+  }
+  .empty svg { margin-bottom: 12px; opacity: .4; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+
+  /* ── TOPIC SECTION HIDDEN ── */
+  .topic-section { display: none; }
+  .topic-section.visible { display: block; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    aside { display: none; }
+    main  { padding: 20px 16px; }
+    .cards { grid-template-columns: 1fr; }
+    .search-wrap { max-width: 240px; margin: 0 12px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<header>
+  <a class="logo" href="#">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#58a6ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/>
+    </svg>
+    Comandos
+  </a>
+
+  <div class="search-wrap">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input id="search" type="search" placeholder="Buscar comandos…" autocomplete="off" spellcheck="false">
+  </div>
+
+  <div class="header-right">
+    <span class="badge-count" id="total-count"></span>
+  </div>
+</header>
+
+<!-- ══ LAYOUT ══ -->
+<div class="layout">
+
+  <!-- ── SIDEBAR ── -->
+  <aside>
+    <div class="sidebar-label">Herramientas</div>
+
+    <button class="nav-item active" data-topic="git" onclick="switchTopic('git', this)">
+      <span class="dot" style="background:#f05133"></span>
+      Git
+      <span class="count" id="cnt-git"></span>
+    </button>
+
+    <button class="nav-item" data-topic="termux" onclick="switchTopic('termux', this)">
+      <span class="dot" style="background:#a8ff78"></span>
+      Termux
+      <span class="count" id="cnt-termux"></span>
+    </button>
+
+    <button class="nav-item" data-topic="cmd" onclick="switchTopic('cmd', this)">
+      <span class="dot" style="background:#0078d4"></span>
+      CMD
+      <span class="count" id="cnt-cmd"></span>
+    </button>
+
+    <button class="nav-item" data-topic="ps" onclick="switchTopic('ps', this)">
+      <span class="dot" style="background:#5391fe"></span>
+      PowerShell
+      <span class="count" id="cnt-ps"></span>
+    </button>
+
+    <div class="sidebar-label" style="margin-top:20px">Próximamente</div>
+    <button class="nav-item" disabled style="opacity:.4;cursor:default">
+      <span class="dot" style="background:#6e7681"></span> Linux
+    </button>
+    <button class="nav-item" disabled style="opacity:.4;cursor:default">
+      <span class="dot" style="background:#6e7681"></span> Docker
+    </button>
+    <button class="nav-item" disabled style="opacity:.4;cursor:default">
+      <span class="dot" style="background:#6e7681"></span> GitHub CLI
+    </button>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main>
+
+    <!-- ════ GIT ════ -->
+    <div class="topic-section visible" id="section-git">
+
+      <div class="topic-header">
+        <div class="topic-icon git">🔀</div>
+        <div class="topic-info">
+          <h1 style="color:#f05133">Git</h1>
+          <p>Sistema de control de versiones distribuido. Gestiona el historial de tu código, ramas, fusiones y colaboración con otros desarrolladores.</p>
+        </div>
+      </div>
+
+      <div class="filters" id="filters-git">
+        <button class="filter-btn active" onclick="filterCards('git','all',this)">Todos</button>
+        <button class="filter-btn" onclick="filterCards('git','init',this)">Inicializar</button>
+        <button class="filter-btn" onclick="filterCards('git','stage',this)">Stage &amp; Commit</button>
+        <button class="filter-btn" onclick="filterCards('git','branch',this)">Ramas</button>
+        <button class="filter-btn" onclick="filterCards('git','remote',this)">Remoto</button>
+        <button class="filter-btn" onclick="filterCards('git','history',this)">Historial</button>
+        <button class="filter-btn" onclick="filterCards('git','undo',this)">Deshacer</button>
+        <button class="filter-btn" onclick="filterCards('git','config',this)">Config</button>
+      </div>
+
+      <div id="git-cards" class="cards"></div>
+    </div>
+
+    <!-- ════ TERMUX ════ -->
+    <div class="topic-section" id="section-termux">
+
+      <div class="topic-header">
+        <div class="topic-icon termux">📱</div>
+        <div class="topic-info">
+          <h1 style="color:#a8ff78">Termux</h1>
+          <p>Emulador de terminal para Android. Ejecuta entornos Linux completos en tu dispositivo móvil, instala paquetes y desarrolla desde cualquier lugar.</p>
+        </div>
+      </div>
+
+      <div class="filters" id="filters-termux">
+        <button class="filter-btn active" onclick="filterCards('termux','all',this)">Todos</button>
+        <button class="filter-btn" onclick="filterCards('termux','pkg',this)">Paquetes</button>
+        <button class="filter-btn" onclick="filterCards('termux','sys',this)">Sistema</button>
+        <button class="filter-btn" onclick="filterCards('termux','net',this)">Red</button>
+        <button class="filter-btn" onclick="filterCards('termux','shell',this)">Shell</button>
+        <button class="filter-btn" onclick="filterCards('termux','file',this)">Archivos</button>
+        <button class="filter-btn" onclick="filterCards('termux','editor',this)">Editores</button>
+      </div>
+
+      <div id="termux-cards" class="cards"></div>
+    </div>
+
+    <!-- ════ CMD ════ -->
+    <div class="topic-section" id="section-cmd">
+
+      <div class="topic-header">
+        <div class="topic-icon cmd">🖥️</div>
+        <div class="topic-info">
+          <h1 style="color:#0078d4">CMD</h1>
+          <p>Símbolo del sistema de Windows. Ejecuta comandos, scripts .bat y administra el sistema operativo directamente desde la línea de comandos clásica.</p>
+        </div>
+      </div>
+
+      <div class="filters" id="filters-cmd">
+        <button class="filter-btn active" onclick="filterCards('cmd','all',this)">Todos</button>
+        <button class="filter-btn" onclick="filterCards('cmd','nav',this)">Navegación</button>
+        <button class="filter-btn" onclick="filterCards('cmd','file',this)">Archivos</button>
+        <button class="filter-btn" onclick="filterCards('cmd','sys',this)">Sistema</button>
+        <button class="filter-btn" onclick="filterCards('cmd','net',this)">Red</button>
+        <button class="filter-btn" onclick="filterCards('cmd','util',this)">Utilidades</button>
+      </div>
+
+      <div id="cmd-cards" class="cards"></div>
+    </div>
+
+    <!-- ════ POWERSHELL ════ -->
+    <div class="topic-section" id="section-ps">
+
+      <div class="topic-header">
+        <div class="topic-icon ps">⚡</div>
+        <div class="topic-info">
+          <h1 style="color:#5391fe">PowerShell</h1>
+          <p>Shell orientada a objetos de Microsoft. Automatiza tareas, gestiona el sistema y construye scripts avanzados con acceso completo al ecosistema .NET.</p>
+        </div>
+      </div>
+
+      <div class="filters" id="filters-ps">
+        <button class="filter-btn active" onclick="filterCards('ps','all',this)">Todos</button>
+        <button class="filter-btn" onclick="filterCards('ps','nav',this)">Navegación</button>
+        <button class="filter-btn" onclick="filterCards('ps','file',this)">Archivos</button>
+        <button class="filter-btn" onclick="filterCards('ps','sys',this)">Sistema</button>
+        <button class="filter-btn" onclick="filterCards('ps','net',this)">Red</button>
+        <button class="filter-btn" onclick="filterCards('ps','pipe',this)">Pipeline</button>
+      </div>
+
+      <div id="ps-cards" class="cards"></div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+/* ═══════════════════════════════
+   DATA
+═══════════════════════════════ */
+
+const DATA = {
+
+  git: [
+    /* ── INIT ── */
+    {
+      cat: 'init', tag: 'tag-init', tagLabel: 'Inicializar',
+      cmd: 'git init',
+      desc: 'Crea un nuevo repositorio Git vacío en el directorio actual.',
+      code: `<span class="prompt">$</span> <span class="cmd">git init</span>
+<span class="comment"># Initialized empty Git repository in .git/</span>
+
+<span class="comment"># Con nombre de directorio</span>
+<span class="prompt">$</span> <span class="cmd">git init</span> <span class="str">mi-proyecto</span>`
+    },
+    {
+      cat: 'init', tag: 'tag-init', tagLabel: 'Inicializar',
+      cmd: 'git clone',
+      desc: 'Clona un repositorio remoto en tu máquina local.',
+      code: `<span class="prompt">$</span> <span class="cmd">git clone</span> <span class="str">https://github.com/user/repo.git</span>
+
+<span class="comment"># Clonar en carpeta con nombre distinto</span>
+<span class="prompt">$</span> <span class="cmd">git clone</span> <span class="str">https://github.com/user/repo.git</span> <span class="str">mi-carpeta</span>
+
+<span class="comment"># Solo la rama principal (más rápido)</span>
+<span class="prompt">$</span> <span class="cmd">git clone</span> <span class="flag">--depth=1</span> <span class="str">https://github.com/user/repo.git</span>`
+    },
+
+    /* ── STAGE ── */
+    {
+      cat: 'stage', tag: 'tag-stage', tagLabel: 'Stage',
+      cmd: 'git status',
+      desc: 'Muestra el estado del área de trabajo y el staging area.',
+      code: `<span class="prompt">$</span> <span class="cmd">git status</span>
+
+<span class="comment"># Versión corta</span>
+<span class="prompt">$</span> <span class="cmd">git status</span> <span class="flag">-s</span>
+<span class="comment"># M archivo.txt  → modificado</span>
+<span class="comment"># ?? nuevo.txt    → no rastreado</span>`
+    },
+    {
+      cat: 'stage', tag: 'tag-stage', tagLabel: 'Stage',
+      cmd: 'git add',
+      desc: 'Agrega cambios al staging area para incluirlos en el próximo commit.',
+      code: `<span class="prompt">$</span> <span class="cmd">git add</span> <span class="str">archivo.txt</span>      <span class="comment"># un archivo</span>
+<span class="prompt">$</span> <span class="cmd">git add</span> <span class="str">src/</span>              <span class="comment"># carpeta completa</span>
+<span class="prompt">$</span> <span class="cmd">git add</span> <span class="flag">.</span>                 <span class="comment"># todo el directorio</span>
+<span class="prompt">$</span> <span class="cmd">git add</span> <span class="flag">-p</span>                <span class="comment"># modo interactivo por hunks</span>`
+    },
+    {
+      cat: 'stage', tag: 'tag-stage', tagLabel: 'Stage',
+      cmd: 'git commit',
+      desc: 'Guarda los cambios del staging area en el historial del repositorio.',
+      code: `<span class="prompt">$</span> <span class="cmd">git commit</span> <span class="flag">-m</span> <span class="str">"feat: agregar login"</span>
+
+<span class="comment"># Add + commit en un paso (solo archivos rastreados)</span>
+<span class="prompt">$</span> <span class="cmd">git commit</span> <span class="flag">-am</span> <span class="str">"fix: corregir validación"</span>
+
+<span class="comment"># Modificar el último commit</span>
+<span class="prompt">$</span> <span class="cmd">git commit</span> <span class="flag">--amend</span> <span class="flag">--no-edit</span>`
+    },
+
+    /* ── BRANCH ── */
+    {
+      cat: 'branch', tag: 'tag-branch', tagLabel: 'Ramas',
+      cmd: 'git branch',
+      desc: 'Lista, crea o elimina ramas del repositorio.',
+      code: `<span class="prompt">$</span> <span class="cmd">git branch</span>                  <span class="comment"># listar ramas locales</span>
+<span class="prompt">$</span> <span class="cmd">git branch</span> <span class="flag">-a</span>              <span class="comment"># locales + remotas</span>
+<span class="prompt">$</span> <span class="cmd">git branch</span> <span class="str">nueva-rama</span>       <span class="comment"># crear rama</span>
+<span class="prompt">$</span> <span class="cmd">git branch</span> <span class="flag">-d</span> <span class="str">rama-vieja</span>    <span class="comment"># eliminar (seguro)</span>
+<span class="prompt">$</span> <span class="cmd">git branch</span> <span class="flag">-D</span> <span class="str">rama-vieja</span>    <span class="comment"># eliminar forzado</span>`
+    },
+    {
+      cat: 'branch', tag: 'tag-branch', tagLabel: 'Ramas',
+      cmd: 'git checkout / switch',
+      desc: 'Cambia de rama o crea una nueva y se mueve a ella.',
+      code: `<span class="prompt">$</span> <span class="cmd">git switch</span> <span class="str">main</span>              <span class="comment"># cambiar a rama</span>
+<span class="prompt">$</span> <span class="cmd">git switch</span> <span class="flag">-c</span> <span class="str">feature/login</span>  <span class="comment"># crear y cambiar</span>
+
+<span class="comment"># Sintaxis clásica (también válida)</span>
+<span class="prompt">$</span> <span class="cmd">git checkout</span> <span class="flag">-b</span> <span class="str">feature/login</span>`
+    },
+    {
+      cat: 'branch', tag: 'tag-branch', tagLabel: 'Ramas',
+      cmd: 'git merge',
+      desc: 'Fusiona una rama dentro de la rama actual.',
+      code: `<span class="comment"># Primero estar en la rama destino</span>
+<span class="prompt">$</span> <span class="cmd">git switch</span> <span class="str">main</span>
+<span class="prompt">$</span> <span class="cmd">git merge</span> <span class="str">feature/login</span>
+
+<span class="comment"># Sin fast-forward (crea commit de merge)</span>
+<span class="prompt">$</span> <span class="cmd">git merge</span> <span class="flag">--no-ff</span> <span class="str">feature/login</span>`
+    },
+    {
+      cat: 'branch', tag: 'tag-branch', tagLabel: 'Ramas',
+      cmd: 'git rebase',
+      desc: 'Reaplica los commits de una rama sobre otra base, linealizando el historial.',
+      code: `<span class="prompt">$</span> <span class="cmd">git rebase</span> <span class="str">main</span>
+
+<span class="comment"># Rebase interactivo (últimos 3 commits)</span>
+<span class="prompt">$</span> <span class="cmd">git rebase</span> <span class="flag">-i</span> HEAD~3
+
+<span class="comment"># Continuar tras resolver conflictos</span>
+<span class="prompt">$</span> <span class="cmd">git rebase</span> <span class="flag">--continue</span>`
+    },
+
+    /* ── REMOTE ── */
+    {
+      cat: 'remote', tag: 'tag-remote', tagLabel: 'Remoto',
+      cmd: 'git remote',
+      desc: 'Administra las conexiones con repositorios remotos.',
+      code: `<span class="prompt">$</span> <span class="cmd">git remote</span> <span class="flag">-v</span>
+<span class="prompt">$</span> <span class="cmd">git remote add</span> <span class="str">origin</span> <span class="str">https://github.com/user/repo.git</span>
+<span class="prompt">$</span> <span class="cmd">git remote remove</span> <span class="str">origin</span>
+<span class="prompt">$</span> <span class="cmd">git remote rename</span> <span class="str">origin</span> <span class="str">upstream</span>`
+    },
+    {
+      cat: 'remote', tag: 'tag-remote', tagLabel: 'Remoto',
+      cmd: 'git push',
+      desc: 'Sube los commits locales al repositorio remoto.',
+      code: `<span class="prompt">$</span> <span class="cmd">git push</span> <span class="str">origin</span> <span class="str">main</span>
+
+<span class="comment"># Primera vez: establecer upstream</span>
+<span class="prompt">$</span> <span class="cmd">git push</span> <span class="flag">-u</span> <span class="str">origin</span> <span class="str">main</span>
+
+<span class="comment"># Forzar (cuidado en ramas compartidas)</span>
+<span class="prompt">$</span> <span class="cmd">git push</span> <span class="flag">--force-with-lease</span>
+
+<span class="comment"># Eliminar rama remota</span>
+<span class="prompt">$</span> <span class="cmd">git push</span> <span class="str">origin</span> <span class="flag">--delete</span> <span class="str">feature/login</span>`
+    },
+    {
+      cat: 'remote', tag: 'tag-remote', tagLabel: 'Remoto',
+      cmd: 'git pull',
+      desc: 'Descarga y fusiona los cambios del remoto en la rama actual.',
+      code: `<span class="prompt">$</span> <span class="cmd">git pull</span>
+
+<span class="comment"># Pull con rebase en vez de merge</span>
+<span class="prompt">$</span> <span class="cmd">git pull</span> <span class="flag">--rebase</span>
+
+<span class="comment"># Solo descargar sin fusionar</span>
+<span class="prompt">$</span> <span class="cmd">git fetch</span> <span class="str">origin</span>`
+    },
+
+    /* ── HISTORY ── */
+    {
+      cat: 'history', tag: 'tag-history', tagLabel: 'Historial',
+      cmd: 'git log',
+      desc: 'Muestra el historial de commits del repositorio.',
+      code: `<span class="prompt">$</span> <span class="cmd">git log</span>
+
+<span class="comment"># Compacto en una línea</span>
+<span class="prompt">$</span> <span class="cmd">git log</span> <span class="flag">--oneline --graph --all</span>
+
+<span class="comment"># Últimos 5 commits</span>
+<span class="prompt">$</span> <span class="cmd">git log</span> <span class="flag">-5 --oneline</span>
+
+<span class="comment"># Por autor</span>
+<span class="prompt">$</span> <span class="cmd">git log</span> <span class="flag">--author=</span><span class="str">"Nombre"</span>`
+    },
+    {
+      cat: 'history', tag: 'tag-history', tagLabel: 'Historial',
+      cmd: 'git diff',
+      desc: 'Muestra las diferencias entre commits, ramas o el árbol de trabajo.',
+      code: `<span class="prompt">$</span> <span class="cmd">git diff</span>                   <span class="comment"># cambios sin stagear</span>
+<span class="prompt">$</span> <span class="cmd">git diff</span> <span class="flag">--staged</span>          <span class="comment"># cambios stageados</span>
+<span class="prompt">$</span> <span class="cmd">git diff</span> <span class="str">main feature/x</span>   <span class="comment"># entre ramas</span>
+<span class="prompt">$</span> <span class="cmd">git diff</span> HEAD~1 HEAD        <span class="comment"># vs commit anterior</span>`
+    },
+    {
+      cat: 'history', tag: 'tag-history', tagLabel: 'Historial',
+      cmd: 'git stash',
+      desc: 'Guarda temporalmente cambios sin commitear para limpiar el árbol de trabajo.',
+      code: `<span class="prompt">$</span> <span class="cmd">git stash</span>                  <span class="comment"># guardar</span>
+<span class="prompt">$</span> <span class="cmd">git stash pop</span>              <span class="comment"># restaurar el último</span>
+<span class="prompt">$</span> <span class="cmd">git stash list</span>             <span class="comment"># ver todos</span>
+<span class="prompt">$</span> <span class="cmd">git stash push</span> <span class="flag">-m</span> <span class="str">"wip"</span>   <span class="comment"># con nombre</span>
+<span class="prompt">$</span> <span class="cmd">git stash drop</span> stash@{0}   <span class="comment"># eliminar uno</span>`
+    },
+
+    /* ── UNDO ── */
+    {
+      cat: 'undo', tag: 'tag-undo', tagLabel: 'Deshacer',
+      cmd: 'git reset',
+      desc: 'Mueve HEAD a un commit anterior, opcionalmente modificando el staging o el working tree.',
+      code: `<span class="comment"># Deshacer staging (mantiene cambios en disco)</span>
+<span class="prompt">$</span> <span class="cmd">git reset</span> HEAD <span class="str">archivo.txt</span>
+
+<span class="comment"># Mover HEAD 1 commit atrás (mantiene cambios)</span>
+<span class="prompt">$</span> <span class="cmd">git reset</span> <span class="flag">--soft</span> HEAD~1
+
+<span class="comment"># Descartar cambios completamente ⚠️</span>
+<span class="prompt">$</span> <span class="cmd">git reset</span> <span class="flag">--hard</span> HEAD~1`
+    },
+    {
+      cat: 'undo', tag: 'tag-undo', tagLabel: 'Deshacer',
+      cmd: 'git revert',
+      desc: 'Crea un nuevo commit que deshace los cambios de un commit anterior (seguro para ramas compartidas).',
+      code: `<span class="comment"># Revertir el último commit</span>
+<span class="prompt">$</span> <span class="cmd">git revert</span> HEAD
+
+<span class="comment"># Revertir commit específico</span>
+<span class="prompt">$</span> <span class="cmd">git revert</span> <span class="str">a1b2c3d</span>
+
+<span class="comment"># Sin abrir editor</span>
+<span class="prompt">$</span> <span class="cmd">git revert</span> <span class="flag">--no-edit</span> HEAD`
+    },
+    {
+      cat: 'undo', tag: 'tag-undo', tagLabel: 'Deshacer',
+      cmd: 'git restore',
+      desc: 'Restaura archivos del árbol de trabajo o del staging area.',
+      code: `<span class="comment"># Descartar cambios en un archivo</span>
+<span class="prompt">$</span> <span class="cmd">git restore</span> <span class="str">archivo.txt</span>
+
+<span class="comment"># Quitar del staging</span>
+<span class="prompt">$</span> <span class="cmd">git restore</span> <span class="flag">--staged</span> <span class="str">archivo.txt</span>
+
+<span class="comment"># Restaurar a versión de otro commit</span>
+<span class="prompt">$</span> <span class="cmd">git restore</span> <span class="flag">--source</span> HEAD~2 <span class="str">archivo.txt</span>`
+    },
+
+    /* ── CONFIG ── */
+    {
+      cat: 'config', tag: 'tag-config', tagLabel: 'Config',
+      cmd: 'git config',
+      desc: 'Configura opciones de Git a nivel global o de repositorio.',
+      code: `<span class="comment"># Identidad</span>
+<span class="prompt">$</span> <span class="cmd">git config</span> <span class="flag">--global</span> user.name <span class="str">"Tu Nombre"</span>
+<span class="prompt">$</span> <span class="cmd">git config</span> <span class="flag">--global</span> user.email <span class="str">"tu@email.com"</span>
+
+<span class="comment"># Editor por defecto</span>
+<span class="prompt">$</span> <span class="cmd">git config</span> <span class="flag">--global</span> core.editor <span class="str">nano</span>
+
+<span class="comment"># Ver toda la configuración</span>
+<span class="prompt">$</span> <span class="cmd">git config</span> <span class="flag">--list</span>`
+    },
+    {
+      cat: 'config', tag: 'tag-config', tagLabel: 'Config',
+      cmd: 'git tag',
+      desc: 'Crea, lista o elimina etiquetas en commits específicos.',
+      code: `<span class="prompt">$</span> <span class="cmd">git tag</span>                         <span class="comment"># listar</span>
+<span class="prompt">$</span> <span class="cmd">git tag</span> <span class="str">v1.0.0</span>                  <span class="comment"># tag ligero</span>
+<span class="prompt">$</span> <span class="cmd">git tag</span> <span class="flag">-a</span> <span class="str">v1.0.0</span> <span class="flag">-m</span> <span class="str">"Release"</span>  <span class="comment"># tag anotado</span>
+<span class="prompt">$</span> <span class="cmd">git push</span> <span class="str">origin</span> <span class="flag">--tags</span>         <span class="comment"># subir tags</span>`
+    },
+    {
+      cat: 'config', tag: 'tag-config', tagLabel: 'Config',
+      cmd: 'git cherry-pick',
+      desc: 'Aplica los cambios de un commit específico en la rama actual.',
+      code: `<span class="comment"># Aplicar un commit por su hash</span>
+<span class="prompt">$</span> <span class="cmd">git cherry-pick</span> <span class="str">a1b2c3d</span>
+
+<span class="comment"># Rango de commits</span>
+<span class="prompt">$</span> <span class="cmd">git cherry-pick</span> <span class="str">a1b2c3d</span><span class="flag">..</span><span class="str">f9e8d7c</span>
+
+<span class="comment"># Sin hacer commit automático</span>
+<span class="prompt">$</span> <span class="cmd">git cherry-pick</span> <span class="flag">-n</span> <span class="str">a1b2c3d</span>`
+    },
+  ],
+
+  termux: [
+    /* ── PKG ── */
+    {
+      cat: 'pkg', tag: 'tag-pkg', tagLabel: 'Paquetes',
+      cmd: 'pkg update / upgrade',
+      desc: 'Actualiza la lista de paquetes disponibles y mejora los instalados.',
+      code: `<span class="prompt">$</span> <span class="cmd">pkg update</span>        <span class="comment"># actualizar índice</span>
+<span class="prompt">$</span> <span class="cmd">pkg upgrade</span>       <span class="comment"># actualizar paquetes</span>
+<span class="prompt">$</span> <span class="cmd">pkg update</span> <span class="flag">-y</span> <span class="flag">&&</span> <span class="cmd">pkg upgrade</span> <span class="flag">-y</span>`
+    },
+    {
+      cat: 'pkg', tag: 'tag-pkg', tagLabel: 'Paquetes',
+      cmd: 'pkg install',
+      desc: 'Instala uno o varios paquetes en el entorno Termux.',
+      code: `<span class="prompt">$</span> <span class="cmd">pkg install</span> <span class="str">git</span>
+<span class="prompt">$</span> <span class="cmd">pkg install</span> <span class="str">python nodejs</span>     <span class="comment"># varios a la vez</span>
+<span class="prompt">$</span> <span class="cmd">pkg install</span> <span class="str">python-pip</span>
+
+<span class="comment"># Paquetes populares</span>
+<span class="comment"># git, curl, wget, vim, nano, openssh</span>
+<span class="comment"># python, nodejs, ruby, php, golang</span>
+<span class="comment"># nmap, hydra, metasploit-framework</span>`
+    },
+    {
+      cat: 'pkg', tag: 'tag-pkg', tagLabel: 'Paquetes',
+      cmd: 'pkg remove / list',
+      desc: 'Elimina paquetes instalados o lista los disponibles.',
+      code: `<span class="prompt">$</span> <span class="cmd">pkg remove</span> <span class="str">nodejs</span>      <span class="comment"># desinstalar</span>
+<span class="prompt">$</span> <span class="cmd">pkg list-installed</span>       <span class="comment"># ver instalados</span>
+<span class="prompt">$</span> <span class="cmd">pkg list-all</span>             <span class="comment"># todos disponibles</span>
+<span class="prompt">$</span> <span class="cmd">pkg search</span> <span class="str">python</span>        <span class="comment"># buscar paquete</span>`
+    },
+    {
+      cat: 'pkg', tag: 'tag-pkg', tagLabel: 'Paquetes',
+      cmd: 'pip / npm (gestores)',
+      desc: 'Gestores de paquetes para Python y Node.js dentro de Termux.',
+      code: `<span class="comment"># Python</span>
+<span class="prompt">$</span> <span class="cmd">pip install</span> <span class="str">requests flask</span>
+<span class="prompt">$</span> <span class="cmd">pip list</span>
+<span class="prompt">$</span> <span class="cmd">pip install</span> <span class="flag">--upgrade</span> <span class="str">pip</span>
+
+<span class="comment"># Node.js</span>
+<span class="prompt">$</span> <span class="cmd">npm install</span> <span class="flag">-g</span> <span class="str">nodemon</span>
+<span class="prompt">$</span> <span class="cmd">npm list</span> <span class="flag">-g --depth=0</span>`
+    },
+
+    /* ── SYS ── */
+    {
+      cat: 'sys', tag: 'tag-sys', tagLabel: 'Sistema',
+      cmd: 'termux-setup-storage',
+      desc: 'Solicita permiso de acceso al almacenamiento interno del dispositivo.',
+      code: `<span class="prompt">$</span> <span class="cmd">termux-setup-storage</span>
+
+<span class="comment"># Tras aceptar, aparece ~/storage/</span>
+<span class="comment"># ~/storage/downloads  → Descargas</span>
+<span class="comment"># ~/storage/dcim       → Fotos</span>
+<span class="comment"># ~/storage/shared     → Almacenamiento interno</span>`
+    },
+    {
+      cat: 'sys', tag: 'tag-sys', tagLabel: 'Sistema',
+      cmd: 'termux-info / uname',
+      desc: 'Muestra información del entorno Termux y del sistema Android.',
+      code: `<span class="prompt">$</span> <span class="cmd">termux-info</span>        <span class="comment"># info de Termux</span>
+<span class="prompt">$</span> <span class="cmd">uname</span> <span class="flag">-a</span>           <span class="comment"># kernel del sistema</span>
+<span class="prompt">$</span> <span class="cmd">getprop</span> ro.build.version.release  <span class="comment"># versión Android</span>
+<span class="prompt">$</span> <span class="cmd">free</span> <span class="flag">-h</span>           <span class="comment"># memoria RAM</span>
+<span class="prompt">$</span> <span class="cmd">df</span> <span class="flag">-h</span>             <span class="comment"># espacio en disco</span>`
+    },
+    {
+      cat: 'sys', tag: 'tag-sys', tagLabel: 'Sistema',
+      cmd: 'termux-battery-status',
+      desc: 'Muestra el estado de la batería del dispositivo en formato JSON.',
+      code: `<span class="prompt">$</span> <span class="cmd">termux-battery-status</span>
+<span class="comment"># {</span>
+<span class="comment">#   "health": "GOOD",</span>
+<span class="comment">#   "percentage": 85,</span>
+<span class="comment">#   "status": "CHARGING"</span>
+<span class="comment"># }</span>
+
+<span class="comment"># Otras APIs de Termux</span>
+<span class="prompt">$</span> <span class="cmd">termux-clipboard-get</span>
+<span class="prompt">$</span> <span class="cmd">termux-toast</span> <span class="str">"Hola desde terminal"</span>`
+    },
+
+    /* ── NET ── */
+    {
+      cat: 'net', tag: 'tag-net', tagLabel: 'Red',
+      cmd: 'openssh / sshd',
+      desc: 'Instala y levanta un servidor SSH para conectarte desde otro dispositivo.',
+      code: `<span class="prompt">$</span> <span class="cmd">pkg install</span> <span class="str">openssh</span>
+
+<span class="comment"># Iniciar servidor SSH</span>
+<span class="prompt">$</span> <span class="cmd">sshd</span>
+
+<span class="comment"># Cambiar contraseña</span>
+<span class="prompt">$</span> <span class="cmd">passwd</span>
+
+<span class="comment"># Conectar desde PC (puerto 8022)</span>
+<span class="comment"># ssh usuario@IP-Android -p 8022</span>`
+    },
+    {
+      cat: 'net', tag: 'tag-net', tagLabel: 'Red',
+      cmd: 'curl / wget',
+      desc: 'Descarga archivos y hace peticiones HTTP desde la terminal.',
+      code: `<span class="prompt">$</span> <span class="cmd">curl</span> <span class="str">https://api.ipify.org</span>       <span class="comment"># ver IP pública</span>
+<span class="prompt">$</span> <span class="cmd">curl</span> <span class="flag">-O</span> <span class="str">https://ejemplo.com/archivo.zip</span>
+<span class="prompt">$</span> <span class="cmd">wget</span> <span class="str">https://ejemplo.com/archivo.zip</span>
+
+<span class="comment"># POST con JSON</span>
+<span class="prompt">$</span> <span class="cmd">curl</span> <span class="flag">-X POST -H</span> <span class="str">"Content-Type: application/json"</span> <span class="flag">\\</span>
+     <span class="flag">-d</span> <span class="str">'{"key":"val"}'</span> <span class="str">https://api.ejemplo.com</span>`
+    },
+    {
+      cat: 'net', tag: 'tag-net', tagLabel: 'Red',
+      cmd: 'nmap',
+      desc: 'Escanea redes y puertos abiertos (instalar con pkg).',
+      code: `<span class="prompt">$</span> <span class="cmd">pkg install</span> <span class="str">nmap</span>
+
+<span class="comment"># Escaneo básico</span>
+<span class="prompt">$</span> <span class="cmd">nmap</span> 192.168.1.1
+
+<span class="comment"># Escaneo rápido de red local</span>
+<span class="prompt">$</span> <span class="cmd">nmap</span> <span class="flag">-sn</span> 192.168.1.0/24
+
+<span class="comment"># Detectar servicios y versiones</span>
+<span class="prompt">$</span> <span class="cmd">nmap</span> <span class="flag">-sV</span> 192.168.1.1`
+    },
+
+    /* ── SHELL ── */
+    {
+      cat: 'shell', tag: 'tag-shell', tagLabel: 'Shell',
+      cmd: 'alias / .bashrc',
+      desc: 'Crea atajos personalizados y configura el entorno de la shell.',
+      code: `<span class="comment"># Crear alias temporal</span>
+<span class="prompt">$</span> <span class="cmd">alias</span> ll=<span class="str">'ls -la'</span>
+<span class="prompt">$</span> <span class="cmd">alias</span> update=<span class="str">'pkg update -y && pkg upgrade -y'</span>
+
+<span class="comment"># Persistir en ~/.bashrc</span>
+<span class="prompt">$</span> <span class="cmd">echo</span> <span class="str">"alias ll='ls -la'"</span> >> ~/.bashrc
+<span class="prompt">$</span> <span class="cmd">source</span> ~/.bashrc`
+    },
+    {
+      cat: 'shell', tag: 'tag-shell', tagLabel: 'Shell',
+      cmd: 'tmux',
+      desc: 'Multiplexor de terminal: múltiples sesiones y ventanas.',
+      code: `<span class="prompt">$</span> <span class="cmd">pkg install</span> <span class="str">tmux</span>
+<span class="prompt">$</span> <span class="cmd">tmux</span>                     <span class="comment"># nueva sesión</span>
+<span class="comment"># Ctrl+b c  → nueva ventana</span>
+<span class="comment"># Ctrl+b n  → siguiente ventana</span>
+<span class="comment"># Ctrl+b %  → dividir vertical</span>
+<span class="comment"># Ctrl+b "  → dividir horizontal</span>
+<span class="comment"># Ctrl+b d  → desconectar sesión</span>
+<span class="prompt">$</span> <span class="cmd">tmux attach</span>              <span class="comment"># reconectar</span>`
+    },
+    {
+      cat: 'shell', tag: 'tag-shell', tagLabel: 'Shell',
+      cmd: 'zsh + oh-my-zsh',
+      desc: 'Instala Zsh con Oh My Zsh para una shell más poderosa y visual.',
+      code: `<span class="prompt">$</span> <span class="cmd">pkg install</span> <span class="str">zsh</span>
+<span class="prompt">$</span> <span class="cmd">pkg install</span> <span class="str">curl git</span>
+<span class="prompt">$</span> <span class="cmd">sh</span> <span class="flag">-c</span> <span class="str">"$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"</span>
+
+<span class="comment"># Cambiar tema en ~/.zshrc</span>
+<span class="comment"># ZSH_THEME="agnoster"</span>
+
+<span class="prompt">$</span> <span class="cmd">chsh</span> <span class="flag">-s</span> zsh   <span class="comment"># zsh como shell por defecto</span>`
+    },
+
+    /* ── FILE ── */
+    {
+      cat: 'file', tag: 'tag-file', tagLabel: 'Archivos',
+      cmd: 'ls / cd / pwd',
+      desc: 'Navegación básica por el sistema de archivos de Termux.',
+      code: `<span class="prompt">$</span> <span class="cmd">ls</span> <span class="flag">-la</span>             <span class="comment"># listar con detalles</span>
+<span class="prompt">$</span> <span class="cmd">cd</span> ~/storage/downloads
+<span class="prompt">$</span> <span class="cmd">pwd</span>               <span class="comment"># directorio actual</span>
+<span class="prompt">$</span> <span class="cmd">cd</span> ..             <span class="comment"># subir nivel</span>
+<span class="prompt">$</span> <span class="cmd">cd</span> ~              <span class="comment"># ir a home</span>`
+    },
+    {
+      cat: 'file', tag: 'tag-file', tagLabel: 'Archivos',
+      cmd: 'cp / mv / rm',
+      desc: 'Copia, mueve y elimina archivos y directorios.',
+      code: `<span class="prompt">$</span> <span class="cmd">cp</span> archivo.txt copia.txt
+<span class="prompt">$</span> <span class="cmd">cp</span> <span class="flag">-r</span> carpeta/ destino/    <span class="comment"># copiar carpeta</span>
+<span class="prompt">$</span> <span class="cmd">mv</span> viejo.txt nuevo.txt       <span class="comment"># mover/renombrar</span>
+<span class="prompt">$</span> <span class="cmd">rm</span> archivo.txt
+<span class="prompt">$</span> <span class="cmd">rm</span> <span class="flag">-rf</span> carpeta/              <span class="comment"># eliminar carpeta ⚠️</span>`
+    },
+    {
+      cat: 'file', tag: 'tag-file', tagLabel: 'Archivos',
+      cmd: 'find / grep',
+      desc: 'Busca archivos y contenido dentro del sistema.',
+      code: `<span class="comment"># Buscar archivo por nombre</span>
+<span class="prompt">$</span> <span class="cmd">find</span> ~ <span class="flag">-name</span> <span class="str">"*.py"</span>
+
+<span class="comment"># Buscar texto en archivos</span>
+<span class="prompt">$</span> <span class="cmd">grep</span> <span class="flag">-r</span> <span class="str">"def main"</span> ~/proyecto/
+
+<span class="comment"># Buscar archivos modificados hoy</span>
+<span class="prompt">$</span> <span class="cmd">find</span> . <span class="flag">-mtime</span> 0 <span class="flag">-type</span> f`
+    },
+
+    /* ── EDITOR ── */
+    {
+      cat: 'editor', tag: 'tag-editor', tagLabel: 'Editores',
+      cmd: 'nano',
+      desc: 'Editor de texto sencillo, ideal para ediciones rápidas en terminal.',
+      code: `<span class="prompt">$</span> <span class="cmd">pkg install</span> <span class="str">nano</span>
+<span class="prompt">$</span> <span class="cmd">nano</span> archivo.txt
+
+<span class="comment"># Atajos principales</span>
+<span class="comment"># Ctrl+O  → guardar</span>
+<span class="comment"># Ctrl+X  → salir</span>
+<span class="comment"># Ctrl+K  → cortar línea</span>
+<span class="comment"># Ctrl+W  → buscar</span>
+<span class="comment"># Ctrl+/  → buscar y reemplazar</span>`
+    },
+    {
+      cat: 'editor', tag: 'tag-editor', tagLabel: 'Editores',
+      cmd: 'vim / neovim',
+      desc: 'Editor modal avanzado con alto nivel de personalización.',
+      code: `<span class="prompt">$</span> <span class="cmd">pkg install</span> <span class="str">vim</span>          <span class="comment"># o neovim</span>
+<span class="prompt">$</span> <span class="cmd">vim</span> archivo.txt
+
+<span class="comment"># Modos</span>
+<span class="comment"># i       → modo insertar</span>
+<span class="comment"># Esc     → modo normal</span>
+<span class="comment"># :w      → guardar</span>
+<span class="comment"># :q!     → salir sin guardar</span>
+<span class="comment"># :wq     → guardar y salir</span>
+<span class="comment"># /texto  → buscar</span>`
+    },
+    {
+      cat: 'editor', tag: 'tag-editor', tagLabel: 'Editores',
+      cmd: 'micro',
+      desc: 'Editor moderno con atajos estilo GUI, perfecto para Termux.',
+      code: `<span class="prompt">$</span> <span class="cmd">pkg install</span> <span class="str">micro</span>
+<span class="prompt">$</span> <span class="cmd">micro</span> archivo.txt
+
+<span class="comment"># Atajos estilo Windows/Mac</span>
+<span class="comment"># Ctrl+S  → guardar</span>
+<span class="comment"># Ctrl+Q  → salir</span>
+<span class="comment"># Ctrl+F  → buscar</span>
+<span class="comment"># Ctrl+Z  → deshacer</span>
+<span class="comment"># Ctrl+C  → copiar</span>`
+    },
+  ],
+
+  /* ══════════════════════════════
+     CMD
+  ══════════════════════════════ */
+  cmd: [
+    /* ── NAV ── */
+    {
+      cat: 'nav', tag: 'tag-nav', tagLabel: 'Navegación',
+      cmd: 'cd',
+      desc: 'Cambia el directorio de trabajo actual.',
+      code: `<span class="prompt-cmd">C:\\></span> <span class="cmd">cd</span> Documents
+<span class="prompt-cmd">C:\\></span> <span class="cmd">cd</span> ..               <span class="comment">REM subir un nivel</span>
+<span class="prompt-cmd">C:\\></span> <span class="cmd">cd</span> \\               <span class="comment">REM ir a raíz</span>
+<span class="prompt-cmd">C:\\></span> <span class="cmd">cd</span> /d D:\\Proyectos  <span class="comment">REM cambiar de unidad</span>`
+    },
+    {
+      cat: 'nav', tag: 'tag-nav', tagLabel: 'Navegación',
+      cmd: 'dir',
+      desc: 'Lista el contenido de un directorio con detalles de archivos y carpetas.',
+      code: `<span class="prompt-cmd">C:\\></span> <span class="cmd">dir</span>
+<span class="prompt-cmd">C:\\></span> <span class="cmd">dir</span> <span class="flag">/b</span>           <span class="comment">REM solo nombres</span>
+<span class="prompt-cmd">C:\\></span> <span class="cmd">dir</span> <span class="flag">/s</span>           <span class="comment">REM incluir subdirectorios</span>
+<span class="prompt-cmd">C:\\></span> <span class="cmd">dir</span> <span class="flag">/a:h</span>         <span class="comment">REM mostrar archivos ocultos</span>
+<span class="prompt-cmd">C:\\></span> <span class="cmd">dir</span> <span class="str">*.txt</span>        <span class="comment">REM filtrar por extensión</span>`
+    },
+    {
+      cat: 'nav', tag: 'tag-nav', tagLabel: 'Navegación',
+      cmd: 'mkdir / rmdir',
+      desc: 'Crea y elimina directorios.',
+      code: `<span class="prompt-cmd">C:\\></span> <span class="cmd">mkdir</span> nueva-carpeta
+<span class="prompt-cmd">C:\\></span> <span class="cmd">mkdir</span> ruta\\sub\\carpeta   <span class="comment">REM crear anidado</span>
+
+<span class="prompt-cmd">C:\\></span> <span class="cmd">rmdir</span> carpeta-vacía
+<span class="prompt-cmd">C:\\></span> <span class="cmd">rmdir</span> <span class="flag">/s /q</span> carpeta    <span class="comment">REM eliminar con contenido ⚠️</span>`
+    },
+
+    /* ── FILE ── */
+    {
+      cat: 'file', tag: 'tag-file', tagLabel: 'Archivos',
+      cmd: 'copy / xcopy / robocopy',
+      desc: 'Copia archivos y directorios con distintos niveles de potencia.',
+      code: `<span class="prompt-cmd">C:\\></span> <span class="cmd">copy</span> origen.txt destino.txt
+<span class="prompt-cmd">C:\\></span> <span class="cmd">copy</span> <span class="str">*.log</span> C:\\Backup\\
+
+<span class="comment">REM xcopy: copia carpetas completas</span>
+<span class="prompt-cmd">C:\\></span> <span class="cmd">xcopy</span> src\ dest\ <span class="flag">/s /e /i</span>
+
+<span class="comment">REM robocopy: sincronización robusta</span>
+<span class="prompt-cmd">C:\\></span> <span class="cmd">robocopy</span> src dest <span class="flag">/mir</span>`
+    },
+    {
+      cat: 'file', tag: 'tag-file', tagLabel: 'Archivos',
+      cmd: 'move / rename / del',
+      desc: 'Mueve, renombra y elimina archivos.',
+      code: `<span class="prompt-cmd">C:\\></span> <span class="cmd">move</span> archivo.txt C:\\Destino\\
+<span class="prompt-cmd">C:\\></span> <span class="cmd">rename</span> viejo.txt nuevo.txt
+
+<span class="prompt-cmd">C:\\></span> <span class="cmd">del</span> archivo.txt
+<span class="prompt-cmd">C:\\></span> <span class="cmd">del</span> <span class="flag">/f /q</span> <span class="str">*.tmp</span>    <span class="comment">REM forzar sin confirmación</span>`
+    },
+    {
+      cat: 'file', tag: 'tag-file', tagLabel: 'Archivos',
+      cmd: 'type / more / echo',
+      desc: 'Muestra el contenido de archivos de texto y crea archivos rápidamente.',
+      code: `<span class="prompt-cmd">C:\\></span> <span class="cmd">type</span> archivo.txt
+<span class="prompt-cmd">C:\\></span> <span class="cmd">more</span> archivo.txt      <span class="comment">REM paginado</span>
+
+<span class="comment">REM Crear/escribir archivo</span>
+<span class="prompt-cmd">C:\\></span> <span class="cmd">echo</span> Hola mundo > nuevo.txt
+<span class="prompt-cmd">C:\\></span> <span class="cmd">echo</span> Segunda línea >> nuevo.txt`
+    },
+
+    /* ── SYS ── */
+    {
+      cat: 'sys', tag: 'tag-sys', tagLabel: 'Sistema',
+      cmd: 'systeminfo',
+      desc: 'Muestra información detallada del sistema operativo y hardware.',
+      code: `<span class="prompt-cmd">C:\\></span> <span class="cmd">systeminfo</span>
+
+<span class="comment">REM Solo campos específicos</span>
+<span class="prompt-cmd">C:\\></span> <span class="cmd">systeminfo</span> <span class="flag">| findstr</span> <span class="str">"OS Name"</span>
+<span class="prompt-cmd">C:\\></span> <span class="cmd">systeminfo</span> <span class="flag">| findstr</span> <span class="str">"Total Physical Memory"</span>`
+    },
+    {
+      cat: 'sys', tag: 'tag-proc', tagLabel: 'Procesos',
+      cmd: 'tasklist / taskkill',
+      desc: 'Lista los procesos en ejecución y termina los que necesites.',
+      code: `<span class="prompt-cmd">C:\\></span> <span class="cmd">tasklist</span>
+<span class="prompt-cmd">C:\\></span> <span class="cmd">tasklist</span> <span class="flag">/fi</span> <span class="str">"imagename eq chrome.exe"</span>
+
+<span class="comment">REM Terminar proceso por nombre</span>
+<span class="prompt-cmd">C:\\></span> <span class="cmd">taskkill</span> <span class="flag">/im</span> notepad.exe <span class="flag">/f</span>
+
+<span class="comment">REM Terminar por PID</span>
+<span class="prompt-cmd">C:\\></span> <span class="cmd">taskkill</span> <span class="flag">/pid</span> 1234 <span class="flag">/f</span>`
+    },
+    {
+      cat: 'sys', tag: 'tag-sys', tagLabel: 'Sistema',
+      cmd: 'shutdown / restart',
+      desc: 'Apaga, reinicia o pone en suspensión el equipo.',
+      code: `<span class="prompt-cmd">C:\\></span> <span class="cmd">shutdown</span> <span class="flag">/s /t</span> 60
+<span class="prompt-cmd">C:\\></span> <span class="cmd">shutdown</span> <span class="flag">/r /t</span> 0
+<span class="prompt-cmd">C:\\></span> <span class="cmd">shutdown</span> <span class="flag">/a</span>
+<span class="prompt-cmd">C:\\></span> <span class="cmd">shutdown</span> <span class="flag">/h</span>`
+    },
+    {
+      cat: 'sys', tag: 'tag-sys', tagLabel: 'Sistema',
+      cmd: 'whoami / hostname',
+      desc: 'Muestra el usuario actual y el nombre del equipo.',
+      code: `<span class="prompt-cmd">C:\\></span> <span class="cmd">whoami</span>
+<span class="prompt-cmd">C:\\></span> <span class="cmd">whoami</span> <span class="flag">/groups</span>
+<span class="prompt-cmd">C:\\></span> <span class="cmd">whoami</span> <span class="flag">/priv</span>
+<span class="prompt-cmd">C:\\></span> <span class="cmd">hostname</span>`
+    },
+
+    /* ── NET ── */
+    {
+      cat: 'net', tag: 'tag-net', tagLabel: 'Red',
+      cmd: 'ipconfig',
+      desc: 'Muestra la configuración de red de todos los adaptadores.',
+      code: `<span class="prompt-cmd">C:\\></span> <span class="cmd">ipconfig</span>
+<span class="prompt-cmd">C:\\></span> <span class="cmd">ipconfig</span> <span class="flag">/all</span>
+<span class="prompt-cmd">C:\\></span> <span class="cmd">ipconfig</span> <span class="flag">/release</span>
+<span class="prompt-cmd">C:\\></span> <span class="cmd">ipconfig</span> <span class="flag">/renew</span>
+<span class="prompt-cmd">C:\\></span> <span class="cmd">ipconfig</span> <span class="flag">/flushdns</span>`
+    },
+    {
+      cat: 'net', tag: 'tag-net', tagLabel: 'Red',
+      cmd: 'ping / tracert',
+      desc: 'Prueba la conectividad con un host y rastrea la ruta de red.',
+      code: `<span class="prompt-cmd">C:\\></span> <span class="cmd">ping</span> google.com
+<span class="prompt-cmd">C:\\></span> <span class="cmd">ping</span> <span class="flag">-t</span> 8.8.8.8
+<span class="prompt-cmd">C:\\></span> <span class="cmd">ping</span> <span class="flag">-n</span> 4 192.168.1.1
+<span class="prompt-cmd">C:\\></span> <span class="cmd">tracert</span> google.com`
+    },
+    {
+      cat: 'net', tag: 'tag-net', tagLabel: 'Red',
+      cmd: 'netstat / nslookup',
+      desc: 'Muestra conexiones de red activas y consulta DNS.',
+      code: `<span class="prompt-cmd">C:\\></span> <span class="cmd">netstat</span> <span class="flag">-an</span>
+<span class="prompt-cmd">C:\\></span> <span class="cmd">netstat</span> <span class="flag">-b</span>
+<span class="prompt-cmd">C:\\></span> <span class="cmd">netstat</span> <span class="flag">-o</span>
+<span class="prompt-cmd">C:\\></span> <span class="cmd">nslookup</span> google.com`
+    },
+
+    /* ── UTIL ── */
+    {
+      cat: 'util', tag: 'tag-util', tagLabel: 'Utilidades',
+      cmd: 'cls / help / where',
+      desc: 'Limpia la pantalla, muestra ayuda y localiza ejecutables.',
+      code: `<span class="prompt-cmd">C:\\></span> <span class="cmd">cls</span>
+<span class="prompt-cmd">C:\\></span> <span class="cmd">help</span>
+<span class="prompt-cmd">C:\\></span> <span class="cmd">help</span> <span class="str">copy</span>
+<span class="prompt-cmd">C:\\></span> <span class="cmd">where</span> python
+<span class="prompt-cmd">C:\\></span> <span class="cmd">where</span> <span class="flag">/r</span> C:\\ node.exe`
+    },
+    {
+      cat: 'util', tag: 'tag-util', tagLabel: 'Utilidades',
+      cmd: 'findstr',
+      desc: 'Busca patrones de texto en archivos, similar a grep en Linux.',
+      code: `<span class="prompt-cmd">C:\\></span> <span class="cmd">findstr</span> <span class="str">"error"</span> log.txt
+<span class="prompt-cmd">C:\\></span> <span class="cmd">findstr</span> <span class="flag">/s /i</span> <span class="str">"TODO"</span> <span class="str">*.js</span>
+<span class="prompt-cmd">C:\\></span> <span class="cmd">findstr</span> <span class="flag">/r</span> <span class="str">"^[0-9]"</span> datos.txt`
+    },
+    {
+      cat: 'util', tag: 'tag-util', tagLabel: 'Utilidades',
+      cmd: 'set / setx',
+      desc: 'Gestiona variables de entorno de forma temporal o permanente.',
+      code: `<span class="prompt-cmd">C:\\></span> <span class="cmd">set</span> MI_VAR=hola
+<span class="prompt-cmd">C:\\></span> <span class="cmd">echo</span> %MI_VAR%
+<span class="prompt-cmd">C:\\></span> <span class="cmd">setx</span> MI_VAR <span class="str">"hola"</span>
+<span class="prompt-cmd">C:\\></span> <span class="cmd">set</span>`
+    },
+  ],
+
+  /* ══════════════════════════════
+     POWERSHELL
+  ══════════════════════════════ */
+  ps: [
+    {
+      cat: 'nav', tag: 'tag-nav', tagLabel: 'Navegación',
+      cmd: 'Set-Location / Get-ChildItem',
+      desc: 'Navega entre directorios y lista su contenido (equivalentes a cd y ls).',
+      code: `<span class="prompt-ps">PS></span> <span class="cmd">Set-Location</span> C:\\Proyectos
+<span class="prompt-ps">PS></span> <span class="cmd">cd</span> ..
+<span class="prompt-ps">PS></span> <span class="cmd">Get-ChildItem</span>
+<span class="prompt-ps">PS></span> <span class="cmd">Get-ChildItem</span> <span class="flag">-Hidden</span>
+<span class="prompt-ps">PS></span> <span class="cmd">Get-ChildItem</span> <span class="flag">-Recurse -Filter</span> <span class="str">*.ps1</span>`
+    },
+    {
+      cat: 'nav', tag: 'tag-nav', tagLabel: 'Navegación',
+      cmd: 'Get-Location / Push-Location',
+      desc: 'Muestra el directorio actual y gestiona una pila de ubicaciones.',
+      code: `<span class="prompt-ps">PS></span> <span class="cmd">Get-Location</span>
+<span class="prompt-ps">PS></span> <span class="cmd">Push-Location</span> C:\\Temp
+<span class="prompt-ps">PS></span> <span class="cmd">Pop-Location</span>`
+    },
+    {
+      cat: 'file', tag: 'tag-file', tagLabel: 'Archivos',
+      cmd: 'Copy-Item / Move-Item',
+      desc: 'Copia y mueve archivos o directorios completos.',
+      code: `<span class="prompt-ps">PS></span> <span class="cmd">Copy-Item</span> origen.txt destino.txt
+<span class="prompt-ps">PS></span> <span class="cmd">Copy-Item</span> src\ dest\ <span class="flag">-Recurse</span>
+<span class="prompt-ps">PS></span> <span class="cmd">Move-Item</span> archivo.txt C:\\Backup\
+<span class="prompt-ps">PS></span> <span class="cmd">Move-Item</span> viejo.txt nuevo.txt`
+    },
+    {
+      cat: 'file', tag: 'tag-file', tagLabel: 'Archivos',
+      cmd: 'Remove-Item / New-Item',
+      desc: 'Elimina archivos/directorios y crea nuevos elementos.',
+      code: `<span class="prompt-ps">PS></span> <span class="cmd">Remove-Item</span> archivo.txt
+<span class="prompt-ps">PS></span> <span class="cmd">Remove-Item</span> carpeta <span class="flag">-Recurse -Force</span>
+<span class="prompt-ps">PS></span> <span class="cmd">New-Item</span> nuevo.txt <span class="flag">-ItemType</span> File
+<span class="prompt-ps">PS></span> <span class="cmd">New-Item</span> mi-carpeta <span class="flag">-ItemType</span> Directory`
+    },
+    {
+      cat: 'file', tag: 'tag-file', tagLabel: 'Archivos',
+      cmd: 'Get-Content / Set-Content',
+      desc: 'Lee y escribe el contenido de archivos de texto.',
+      code: `<span class="prompt-ps">PS></span> <span class="cmd">Get-Content</span> archivo.txt
+<span class="prompt-ps">PS></span> <span class="cmd">Get-Content</span> log.txt <span class="flag">-Tail</span> 20
+<span class="prompt-ps">PS></span> <span class="cmd">Get-Content</span> log.txt <span class="flag">-Wait</span>
+<span class="prompt-ps">PS></span> <span class="cmd">Set-Content</span> salida.txt <span class="str">"Hola mundo"</span>
+<span class="prompt-ps">PS></span> <span class="cmd">Add-Content</span> salida.txt <span class="str">"Segunda línea"</span>`
+    },
+    {
+      cat: 'sys', tag: 'tag-sys', tagLabel: 'Sistema',
+      cmd: 'Get-Process / Stop-Process',
+      desc: 'Lista y detiene procesos del sistema.',
+      code: `<span class="prompt-ps">PS></span> <span class="cmd">Get-Process</span>
+<span class="prompt-ps">PS></span> <span class="cmd">Get-Process</span> <span class="flag">-Name</span> chrome
+<span class="prompt-ps">PS></span> <span class="cmd">Stop-Process</span> <span class="flag">-Name</span> notepad <span class="flag">-Force</span>
+<span class="prompt-ps">PS></span> <span class="cmd">Stop-Process</span> <span class="flag">-Id</span> 1234
+<span class="prompt-ps">PS></span> <span class="cmd">Get-Process</span> | <span class="cmd">Sort-Object</span> CPU <span class="flag">-Descending</span> | <span class="cmd">Select-Object</span> <span class="flag">-First</span> 10`
+    },
+    {
+      cat: 'sys', tag: 'tag-sys', tagLabel: 'Sistema',
+      cmd: 'Get-Service / Start-Service',
+      desc: 'Gestiona los servicios de Windows: consulta, inicia, detiene y reinicia.',
+      code: `<span class="prompt-ps">PS></span> <span class="cmd">Get-Service</span>
+<span class="prompt-ps">PS></span> <span class="cmd">Get-Service</span> <span class="flag">-Name</span> wuauserv
+<span class="prompt-ps">PS></span> <span class="cmd">Start-Service</span> <span class="flag">-Name</span> spooler
+<span class="prompt-ps">PS></span> <span class="cmd">Stop-Service</span>  <span class="flag">-Name</span> spooler
+<span class="prompt-ps">PS></span> <span class="cmd">Restart-Service</span> <span class="flag">-Name</span> spooler`
+    },
+    {
+      cat: 'sys', tag: 'tag-sys', tagLabel: 'Sistema',
+      cmd: 'Get-ComputerInfo',
+      desc: 'Devuelve información completa del sistema en un objeto estructurado.',
+      code: `<span class="prompt-ps">PS></span> <span class="cmd">Get-ComputerInfo</span>
+<span class="prompt-ps">PS></span> <span class="cmd">Get-ComputerInfo</span> <span class="flag">-Property</span> OsName, OsVersion, CsTotalPhysicalMemory
+<span class="prompt-ps">PS></span> (<span class="cmd">Get-CimInstance</span> Win32_ComputerSystem).TotalPhysicalMemory / 1GB`
+    },
+    {
+      cat: 'sys', tag: 'tag-sys', tagLabel: 'Sistema',
+      cmd: 'Invoke-Expression / Start-Process',
+      desc: 'Ejecuta comandos dinámicamente e inicia procesos externos.',
+      code: `<span class="prompt-ps">PS></span> <span class="cmd">Invoke-Expression</span> <span class="str">"Get-Date"</span>
+<span class="prompt-ps">PS></span> <span class="cmd">Start-Process</span> notepad.exe
+<span class="prompt-ps">PS></span> <span class="cmd">Start-Process</span> <span class="str">"https://github.com"</span>
+<span class="prompt-ps">PS></span> <span class="cmd">Start-Process</span> powershell <span class="flag">-Verb RunAs</span>`
+    },
+    {
+      cat: 'net', tag: 'tag-net', tagLabel: 'Red',
+      cmd: 'Test-NetConnection',
+      desc: 'Prueba la conectividad de red, incluyendo puertos TCP específicos.',
+      code: `<span class="prompt-ps">PS></span> <span class="cmd">Test-NetConnection</span> google.com
+<span class="prompt-ps">PS></span> <span class="cmd">Test-NetConnection</span> <span class="flag">-ComputerName</span> github.com <span class="flag">-Port</span> 443
+<span class="prompt-ps">PS></span> <span class="cmd">Test-NetConnection</span> google.com <span class="flag">-TraceRoute</span>`
+    },
+    {
+      cat: 'net', tag: 'tag-net', tagLabel: 'Red',
+      cmd: 'Invoke-WebRequest / Invoke-RestMethod',
+      desc: 'Realiza peticiones HTTP y consume APIs REST directamente desde PowerShell.',
+      code: `<span class="prompt-ps">PS></span> <span class="cmd">Invoke-WebRequest</span> <span class="str">"https://ejemplo.com/archivo.zip"</span> <span class="flag">-OutFile</span> archivo.zip
+<span class="prompt-ps">PS></span> $resp = <span class="cmd">Invoke-RestMethod</span> <span class="str">"https://api.github.com/users/octocat"</span>
+<span class="prompt-ps">PS></span> $resp.name`
+    },
+    {
+      cat: 'net', tag: 'tag-net', tagLabel: 'Red',
+      cmd: 'Get-NetIPAddress',
+      desc: 'Muestra la configuración de IP de todos los adaptadores de red.',
+      code: `<span class="prompt-ps">PS></span> <span class="cmd">Get-NetIPAddress</span>
+<span class="prompt-ps">PS></span> <span class="cmd">Get-NetIPAddress</span> <span class="flag">-AddressFamily</span> IPv4
+<span class="prompt-ps">PS></span> <span class="cmd">Get-NetAdapter</span> | <span class="kw">Where-Object</span> Status <span class="flag">-eq</span> <span class="str">"Up"</span>`
+    },
+    {
+      cat: 'pipe', tag: 'tag-pipe', tagLabel: 'Pipeline',
+      cmd: 'Where-Object / Select-Object',
+      desc: 'Filtra y selecciona propiedades de objetos en el pipeline.',
+      code: `<span class="prompt-ps">PS></span> <span class="cmd">Get-Process</span> | <span class="kw">Where-Object</span> { $_.WorkingSet <span class="flag">-gt</span> 100MB }
+<span class="prompt-ps">PS></span> <span class="cmd">Get-Process</span> | <span class="kw">Select-Object</span> Name, CPU, Id | <span class="kw">Sort-Object</span> CPU <span class="flag">-Descending</span>`
+    },
+    {
+      cat: 'pipe', tag: 'tag-pipe', tagLabel: 'Pipeline',
+      cmd: 'ForEach-Object',
+      desc: 'Itera sobre cada objeto en el pipeline y ejecuta un bloque de script.',
+      code: `<span class="prompt-ps">PS></span> <span class="cmd">Get-ChildItem</span> <span class="str">*.txt</span> | <span class="kw">ForEach-Object</span> {
+    <span class="cmd">Write-Host</span> <span class="str">"Archivo: $_"</span>
+}
+<span class="prompt-ps">PS></span> 1..5 | % { $_ * 2 }`
+    },
+    {
+      cat: 'pipe', tag: 'tag-pipe', tagLabel: 'Pipeline',
+      cmd: 'Export-Csv / Import-Csv',
+      desc: 'Exporta objetos a CSV e importa CSVs como objetos de PowerShell.',
+      code: `<span class="prompt-ps">PS></span> <span class="cmd">Get-Process</span> | <span class="cmd">Export-Csv</span> procesos.csv <span class="flag">-NoTypeInformation</span>
+<span class="prompt-ps">PS></span> <span class="cmd">Import-Csv</span> datos.csv | <span class="kw">Where-Object</span> { $_.Ciudad <span class="flag">-eq</span> <span class="str">"Madrid"</span> }`
+    },
+    {
+      cat: 'pipe', tag: 'tag-pipe', tagLabel: 'Pipeline',
+      cmd: 'Format-Table / Format-List',
+      desc: 'Formatea la salida de objetos en tabla o en lista de propiedades.',
+      code: `<span class="prompt-ps">PS></span> <span class="cmd">Get-Process</span> | <span class="cmd">Format-Table</span> Name, CPU, Id <span class="flag">-AutoSize</span>
+<span class="prompt-ps">PS></span> <span class="cmd">Get-Service</span> spooler | <span class="cmd">Format-List</span> *
+<span class="prompt-ps">PS></span> <span class="cmd">Get-Service</span> | <span class="cmd">Format-Table</span> <span class="flag">-GroupBy</span> Status`
+    },
+  ]
+};
+
+/* ═══════════════════════════════
+   STATE
+═══════════════════════════════ */
+let currentTopic  = 'git';
+let currentFilter = { git: 'all', termux: 'all', cmd: 'all', ps: 'all' };
+let searchQuery   = '';
+
+/* ═══════════════════════════════
+   RENDER
+═══════════════════════════════ */
+function renderCards(topic) {
+  const filter = currentFilter[topic];
+  const q = searchQuery.toLowerCase();
+  const items = DATA[topic].filter(item => {
+    const matchFilter = filter === 'all' || item.cat === filter;
+    const matchSearch = !q ||
+      item.cmd.toLowerCase().includes(q) ||
+      item.desc.toLowerCase().includes(q) ||
+      item.tagLabel.toLowerCase().includes(q);
+    return matchFilter && matchSearch;
+  });
+  const container = document.getElementById(topic + '-cards');
+  if (items.length === 0) {
+    container.innerHTML = `
+      <div class="empty">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <div>No se encontraron comandos para <strong>"${escHtml(searchQuery)}"</strong></div>
+      </div>`;
+    return;
+  }
+  container.innerHTML = items.map(item => `
+    <div class="card" data-cat="${item.cat}">
+      <div class="card-top">
+        <span class="cmd-name">${escHtml(item.cmd)}</span>
+        <span class="tag ${item.tag}">${item.tagLabel}</span>
+      </div>
+      <p class="card-desc">${escHtml(item.desc)}</p>
+      <div class="code-block">
+        <pre>${item.code}</pre>
+        <button class="copy-btn" onclick="copyCode(this)">Copiar</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+
+function switchTopic(topic, btn) {
+  currentTopic = topic;
+  document.querySelectorAll('.topic-section').forEach(s => s.classList.remove('visible'));
+  document.getElementById('section-' + topic).classList.add('visible');
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  searchQuery = '';
+  document.getElementById('search').value = '';
+  renderCards(topic);
+  updateCount();
+}
+
+function filterCards(topic, cat, btn) {
+  currentFilter[topic] = cat;
+  const btns = document.querySelectorAll('#filters-' + topic + ' .filter-btn');
+  btns.forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCards(topic);
+}
+
+document.getElementById('search').addEventListener('input', function() {
+  searchQuery = this.value.trim();
+  renderCards(currentTopic);
+  updateCount();
+});
+
+function copyCode(btn) {
+  const pre = btn.previousElementSibling;
+  const text = pre.innerText || pre.textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ Copiado';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copied'); }, 1800);
+  });
+}
+
+function updateCount() {
+  const q = searchQuery.toLowerCase();
+  const topics = ['git', 'termux', 'cmd', 'ps'];
+  let total = 0;
+  topics.forEach(t => {
+    const n = DATA[t].filter(i =>
+      !q || i.cmd.toLowerCase().includes(q) || i.desc.toLowerCase().includes(q) || i.tagLabel.toLowerCase().includes(q)
+    ).length;
+    document.getElementById('cnt-' + t).textContent = n;
+    total += n;
+  });
+  document.getElementById('total-count').textContent =
+    q ? `${total} resultado${total !== 1 ? 's' : ''}` : `${Object.values(DATA).reduce((a, arr) => a + arr.length, 0)} comandos`;
+}
+
+Object.keys(DATA).forEach(t => renderCards(t));
+updateCount();
+</script>
+</body>
+</html>

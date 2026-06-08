@@ -5,15 +5,17 @@ Aplicación educativa interactiva para aprender Git, GitHub, Linux, CMD, PowerSh
 ## 🚀 Características
 
 - **Guía de Referencia Rápida:** Encuentra fácilmente comandos esenciales para tu trabajo diario.
-- **Categorías Estructuradas:** Filtrado por herramientas como Git, Termux y próximamente Linux, Docker, PowerShell, entre otros.
+- **Categorías Estructuradas:** Filtrado por herramientas como Git, Termux, CMD y PowerShell.
 - **Ejemplos Prácticos:** Snippets de código claros, listos para copiar y utilizar.
-- **Diseño Moderno:** Interfaz amigable para desarrolladores con soporte de copiado rápido.
+- **Diseño Moderno:** Interfaz amigable para desarrolladores estilizada con el popular **Tema Dracula**, con soporte de copiado rápido.
 
 ## 🛠️ Herramientas Incluidas
 
 - **Git:** Control de versiones completo (init, stage, branch, remote, history, undo, config).
 - **Termux:** Emulador de terminal Android (gestión de paquetes, sistema, red, shell, archivos, editores).
-- **Próximamente:** Linux, Docker, PowerShell, GitHub CLI.
+- **CMD:** Símbolo del sistema de Windows (navegación, archivos, sistema, red, utilidades).
+- **PowerShell:** Shell orientada a objetos de Microsoft (navegación, archivos, sistema, red, pipeline).
+- **Próximamente:** Linux, Docker, GitHub CLI.
 
 ## 💻 Desarrollo y Uso
 
