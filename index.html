@@ -31,6 +31,7 @@
     --venv: #f7c948;
     --linux: #e95420;
     --gh: #58a6ff;
+    --bash: #4eaa25;
     --radius: 8px;
     --radius-lg: 12px;
   }
@@ -233,6 +234,7 @@
   .topic-icon.venv   { background: rgba(247,201,72,.1); }
   .topic-icon.linux  { background: rgba(233,84,32,.15); }
   .topic-icon.gh     { background: rgba(88,166,255,.12); }
+  .topic-icon.bash   { background: rgba(78,170,37,.15); }
 
   .topic-info h1 {
     font-size: 24px;
@@ -379,6 +381,14 @@
   .tag-ghpr    { background: rgba(188,140,255,.12); color: var(--purple); }
   .tag-ghiss   { background: rgba(210,153,34,.12);  color: var(--orange); }
   .tag-ghact   { background: rgba(248,81,73,.12);   color: var(--red); }
+
+  /* Bash tags */
+  .tag-bnav    { background: rgba(0,120,212,.12);   color: var(--cmd); }
+  .tag-bfile   { background: rgba(63,185,80,.12);   color: var(--green); }
+  .tag-btext   { background: rgba(188,140,255,.12); color: var(--purple); }
+  .tag-bsys    { background: rgba(248,81,73,.12);   color: var(--red); }
+  .tag-bnet    { background: rgba(210,153,34,.12);  color: var(--orange); }
+  .tag-bscript { background: rgba(139,233,253,.12); color: var(--accent); }
 
   .card-desc {
     font-size: 13px;
@@ -571,6 +581,11 @@
       GitHub CLI
       <span class="count" id="cnt-gh"></span>
     </button>
+    <button class="nav-item" data-topic="bash" onclick="switchTopic('bash', this)">
+      <span class="dot" style="background:#4eaa25"></span>
+      Bash
+      <span class="count" id="cnt-bash"></span>
+    </button>
   </aside>
 
   <!-- ── MAIN ── -->
@@ -750,6 +765,27 @@
         <button class="filter-btn" onclick="filterCards('gh','ghauth',this)">Auth</button>
       </div>
       <div id="gh-cards" class="cards"></div>
+    </div>
+
+    <!-- ════ BASH ════ -->
+    <div class="topic-section" id="section-bash">
+      <div class="topic-header">
+        <div class="topic-icon bash">$_</div>
+        <div class="topic-info">
+          <h1 style="color:#4eaa25">Bash</h1>
+          <p>Bourne Again SHell. Intérprete de comandos por defecto en la mayoría de sistemas Linux/Unix y macOS. Permite navegación, manejo de archivos y scripting avanzado.</p>
+        </div>
+      </div>
+      <div class="filters" id="filters-bash">
+        <button class="filter-btn active" onclick="filterCards('bash','all',this)">Todos</button>
+        <button class="filter-btn" onclick="filterCards('bash','bnav',this)">Navegación</button>
+        <button class="filter-btn" onclick="filterCards('bash','bfile',this)">Archivos</button>
+        <button class="filter-btn" onclick="filterCards('bash','btext',this)">Texto</button>
+        <button class="filter-btn" onclick="filterCards('bash','bsys',this)">Sistema</button>
+        <button class="filter-btn" onclick="filterCards('bash','bnet',this)">Red</button>
+        <button class="filter-btn" onclick="filterCards('bash','bscript',this)">Scripting</button>
+      </div>
+      <div id="bash-cards" class="cards"></div>
     </div>
 
   </main>
@@ -2450,6 +2486,92 @@ Ctrl+R         <span class="comment"># búsqueda interactiva en historial</span>
     },
   ],
 
+  /* ══════════════════════════════
+     BASH
+  ══════════════════════════════ */
+  bash: [
+    /* ── NAVEGACIÓN ── */
+    {
+      cat: 'bnav', tag: 'tag-bnav', tagLabel: 'Navegación',
+      cmd: 'pwd / cd / ls',
+      desc: 'Navegación por el sistema de archivos y listado de directorios.',
+      code: `<span class="prompt">$</span> <span class="cmd">cd</span> /var/log
+<span class="prompt">$</span> <span class="cmd">cd</span> -            <span class="comment"># volver al directorio anterior</span>
+<span class="prompt">$</span> <span class="cmd">pwd</span>             <span class="comment"># mostrar ruta actual</span>
+<span class="prompt">$</span> <span class="cmd">ls</span> <span class="flag">-lh</span>          <span class="comment"># listar con detalles legibles</span>
+<span class="prompt">$</span> <span class="cmd">ls</span> <span class="flag">-a</span>           <span class="comment"># incluir archivos ocultos</span>`
+    },
+    {
+      cat: 'bfile', tag: 'tag-bfile', tagLabel: 'Archivos',
+      cmd: 'cp / mv / rm',
+      desc: 'Copiar, mover y eliminar archivos o directorios.',
+      code: `<span class="prompt">$</span> <span class="cmd">cp</span> archivo.txt copia.txt
+<span class="prompt">$</span> <span class="cmd">cp</span> <span class="flag">-r</span> dir1/ dir2/      <span class="comment"># copiar recursivo</span>
+<span class="prompt">$</span> <span class="cmd">mv</span> viejo.txt nuevo.txt <span class="comment"># mover / renombrar</span>
+<span class="prompt">$</span> <span class="cmd">rm</span> archivo.txt
+<span class="prompt">$</span> <span class="cmd">rm</span> <span class="flag">-rf</span> directorio/     <span class="comment"># eliminar forzado recursivo ⚠️</span>`
+    },
+    {
+      cat: 'bfile', tag: 'tag-bfile', tagLabel: 'Archivos',
+      cmd: 'mkdir / touch / find',
+      desc: 'Creación de archivos y búsqueda en el sistema.',
+      code: `<span class="prompt">$</span> <span class="cmd">mkdir</span> nueva_carpeta
+<span class="prompt">$</span> <span class="cmd">mkdir</span> <span class="flag">-p</span> ruta/completa/nueva  <span class="comment"># crear padres si no existen</span>
+<span class="prompt">$</span> <span class="cmd">touch</span> archivo.txt             <span class="comment"># crear archivo vacío</span>
+<span class="prompt">$</span> <span class="cmd">find</span> . <span class="flag">-name</span> <span class="str">"*.txt"</span>          <span class="comment"># buscar por nombre</span>`
+    },
+    {
+      cat: 'btext', tag: 'tag-btext', tagLabel: 'Texto',
+      cmd: 'cat / less / grep',
+      desc: 'Visualización y filtrado de contenido de texto.',
+      code: `<span class="prompt">$</span> <span class="cmd">cat</span> archivo.txt               <span class="comment"># ver todo</span>
+<span class="prompt">$</span> <span class="cmd">less</span> archivo.txt              <span class="comment"># ver paginado</span>
+<span class="prompt">$</span> <span class="cmd">grep</span> <span class="str">"error"</span> log.txt          <span class="comment"># buscar texto en archivo</span>
+<span class="prompt">$</span> <span class="cmd">grep</span> <span class="flag">-r</span> <span class="str">"TODO"</span> src/           <span class="comment"># buscar recursivo</span>
+<span class="prompt">$</span> <span class="cmd">head</span> <span class="flag">-n</span> 10 archivo.txt        <span class="comment"># ver primeras 10 líneas</span>
+<span class="prompt">$</span> <span class="cmd">tail</span> <span class="flag">-f</span> log.txt               <span class="comment"># ver final y seguir cambios</span>`
+    },
+    {
+      cat: 'bsys', tag: 'tag-bsys', tagLabel: 'Sistema',
+      cmd: 'top / htop / ps / kill',
+      desc: 'Gestión de procesos y monitorización del sistema.',
+      code: `<span class="prompt">$</span> <span class="cmd">top</span>                         <span class="comment"># monitor de procesos en vivo</span>
+<span class="prompt">$</span> <span class="cmd">htop</span>                        <span class="comment"># versión interactiva (requiere inst.)</span>
+<span class="prompt">$</span> <span class="cmd">ps</span> <span class="flag">aux</span>                      <span class="comment"># listar todos los procesos</span>
+<span class="prompt">$</span> <span class="cmd">kill</span> 1234                   <span class="comment"># terminar proceso por PID</span>
+<span class="prompt">$</span> <span class="cmd">killall</span> <span class="flag">-9</span> firefox          <span class="comment"># forzar cierre por nombre</span>`
+    },
+    {
+      cat: 'bsys', tag: 'tag-bsys', tagLabel: 'Sistema',
+      cmd: 'df / du / free',
+      desc: 'Información de disco y memoria.',
+      code: `<span class="prompt">$</span> <span class="cmd">df</span> <span class="flag">-h</span>                       <span class="comment"># espacio libre en particiones</span>
+<span class="prompt">$</span> <span class="cmd">du</span> <span class="flag">-sh</span> carpeta/             <span class="comment"># tamaño total de carpeta</span>
+<span class="prompt">$</span> <span class="cmd">free</span> <span class="flag">-h</span>                     <span class="comment"># memoria RAM libre/usada</span>`
+    },
+    {
+      cat: 'bnet', tag: 'tag-bnet', tagLabel: 'Red',
+      cmd: 'ping / curl / wget',
+      desc: 'Herramientas de red y descarga de archivos.',
+      code: `<span class="prompt">$</span> <span class="cmd">ping</span> google.com             <span class="comment"># probar conexión</span>
+<span class="prompt">$</span> <span class="cmd">curl</span> <span class="str">https://api.ipify.org</span>  <span class="comment"># petición HTTP</span>
+<span class="prompt">$</span> <span class="cmd">wget</span> <span class="str">http://ejemplo.com/x.zip</span> <span class="comment"># descargar archivo</span>`
+    },
+    {
+      cat: 'bscript', tag: 'tag-bscript', tagLabel: 'Scripting',
+      cmd: 'chmod / variables / bucles',
+      desc: 'Fundamentos para scripts en Bash.',
+      code: `<span class="prompt">$</span> <span class="cmd">chmod</span> +x script.sh          <span class="comment"># dar permisos de ejecución</span>
+<span class="prompt">$</span> <span class="cmd">./script.sh</span>                 <span class="comment"># ejecutar script local</span>
+
+<span class="comment"># Variables y bucles</span>
+<span class="prompt">$</span> NOMBRE=<span class="str">"Mundo"</span>
+<span class="prompt">$</span> <span class="cmd">echo</span> <span class="str">"Hola $NOMBRE"</span>
+
+<span class="prompt">$</span> <span class="cmd">for</span> i <span class="cmd">in</span> {1..5}; <span class="cmd">do</span> <span class="cmd">echo</span> <span class="str">"Vuelta $i"</span>; <span class="cmd">done</span>`
+    }
+  ],
+
 };
 
 /* ═══════════════════════════════
@@ -2470,7 +2592,7 @@ overlay.addEventListener('click', toggleMenu);
    STATE
 ═══════════════════════════════ */
 let currentTopic  = 'git';
-let currentFilter = { git: 'all', termux: 'all', cmd: 'all', ps: 'all', vim: 'all', venv: 'all', linux: 'all', gh: 'all' };
+let currentFilter = { git: 'all', termux: 'all', cmd: 'all', ps: 'all', vim: 'all', venv: 'all', linux: 'all', gh: 'all', bash: 'all' };
 let searchQuery   = '';
 
 /* ═══════════════════════════════
@@ -2578,7 +2700,7 @@ function switchTopic(topic, el) {
    COUNT BADGE
 ═══════════════════════════════ */
 function updateCount() {
-  const topics = ['git', 'termux', 'cmd', 'ps', 'vim', 'venv', 'linux', 'gh'];
+  const topics = ['git', 'termux', 'cmd', 'ps', 'vim', 'venv', 'linux', 'gh', 'bash'];
   topics.forEach(t => {
     const filter = currentFilter[t] || 'all';
     const q = searchQuery.toLowerCase();
