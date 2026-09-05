@@ -32,6 +32,7 @@
     --linux: #e95420;
     --gh: #58a6ff;
     --bash: #4eaa25;
+    --vscode: #007acc;
     --radius: 8px;
     --radius-lg: 12px;
   }
@@ -235,6 +236,7 @@
   .topic-icon.linux  { background: rgba(233,84,32,.15); }
   .topic-icon.gh     { background: rgba(88,166,255,.12); }
   .topic-icon.bash   { background: rgba(78,170,37,.15); }
+  .topic-icon.vscode { background: rgba(0,122,204,.15); }
 
   .topic-info h1 {
     font-size: 24px;
@@ -390,6 +392,15 @@
   .tag-bnet    { background: rgba(210,153,34,.12);  color: var(--orange); }
   .tag-bscript { background: rgba(139,233,253,.12); color: var(--accent); }
 
+  .tag-vsgen   { background: rgba(0,122,204,.12);   color: var(--vscode); }
+  .tag-vsedit  { background: rgba(255,184,108,.12); color: var(--orange); }
+  .tag-vsnav   { background: rgba(0,120,212,.12);   color: var(--cmd); }
+  .tag-vsmulti { background: rgba(188,140,255,.12); color: var(--purple); }
+  .tag-vssearch{ background: rgba(63,185,80,.12);   color: var(--green); }
+  .tag-vspanel { background: rgba(210,153,34,.12);  color: var(--orange); }
+  .tag-vsdebug { background: rgba(248,81,73,.12);   color: var(--red); }
+  .tag-vsgit   { background: rgba(240,81,51,.12);   color: var(--git); }
+
   .card-desc {
     font-size: 13px;
     color: var(--text2);
@@ -438,7 +449,11 @@
     opacity: 0;
     transition: opacity .12s, color .12s;
   }
-  .code-block:hover .copy-btn { opacity: 1; }
+  .code-block:hover .copy-btn, .code-block:focus-within .copy-btn { opacity: 1; }
+  @media (hover: none) { .copy-btn { opacity: 1; } }
+  button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .copy-status { padding: 8px 24px; color: var(--text2); }
+  .copy-status:empty { display: none; }
   .copy-btn:hover { color: var(--text); }
   .copy-btn.copied { color: var(--green); }
 
@@ -500,7 +515,7 @@
 <!-- ══ HEADER ══ -->
 <header>
   <div class="header-left">
-    <button class="mobile-menu-btn" id="menu-btn" aria-label="Menu">
+    <button class="mobile-menu-btn" id="menu-btn" aria-label="Menú" aria-expanded="false" aria-controls="sidebar">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="3" y1="12" x2="21" y2="12"></line>
         <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -519,20 +534,21 @@
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
     </svg>
-    <input id="search" type="search" placeholder="Buscar comandos…" autocomplete="off" spellcheck="false">
+    <input id="search" aria-label="Buscar comandos" type="search" placeholder="Buscar comandos…" autocomplete="off" spellcheck="false">
   </div>
 
   <div class="header-right">
     <span class="badge-count" id="total-count"></span>
   </div>
 </header>
+<p id="copy-status" class="copy-status" role="status" aria-live="polite"></p>
 
 <!-- ══ LAYOUT ══ -->
 <div class="layout">
   <div class="overlay" id="overlay"></div>
 
   <!-- ── SIDEBAR ── -->
-  <aside>
+  <aside id="sidebar">
     <div class="sidebar-label">Herramientas</div>
 
     <button class="nav-item active" data-topic="git" onclick="switchTopic('git', this)">
@@ -585,6 +601,11 @@
       <span class="dot" style="background:#4eaa25"></span>
       Bash
       <span class="count" id="cnt-bash"></span>
+    </button>
+    <button class="nav-item" data-topic="vscode" onclick="switchTopic('vscode', this)">
+      <span class="dot" style="background:#007acc"></span>
+      VS Code
+      <span class="count" id="cnt-vscode"></span>
     </button>
   </aside>
 
@@ -786,6 +807,29 @@
         <button class="filter-btn" onclick="filterCards('bash','bscript',this)">Scripting</button>
       </div>
       <div id="bash-cards" class="cards"></div>
+    </div>
+
+    <!-- ════ VS CODE ════ -->
+    <div class="topic-section" id="section-vscode">
+      <div class="topic-header">
+        <div class="topic-icon vscode">⌨️</div>
+        <div class="topic-info">
+          <h1 style="color:#007acc">VS Code</h1>
+          <p>Atajos de teclado de Visual Studio Code para Windows. Agiliza la edición, navegación y depuración sin soltar el teclado.</p>
+        </div>
+      </div>
+      <div class="filters" id="filters-vscode">
+        <button class="filter-btn active" onclick="filterCards('vscode','all',this)">Todos</button>
+        <button class="filter-btn" onclick="filterCards('vscode','vsgen',this)">General</button>
+        <button class="filter-btn" onclick="filterCards('vscode','vsedit',this)">Edición</button>
+        <button class="filter-btn" onclick="filterCards('vscode','vsnav',this)">Navegación</button>
+        <button class="filter-btn" onclick="filterCards('vscode','vsmulti',this)">Multi-cursor</button>
+        <button class="filter-btn" onclick="filterCards('vscode','vssearch',this)">Búsqueda</button>
+        <button class="filter-btn" onclick="filterCards('vscode','vspanel',this)">Paneles y Terminal</button>
+        <button class="filter-btn" onclick="filterCards('vscode','vsdebug',this)">Debug</button>
+        <button class="filter-btn" onclick="filterCards('vscode','vsgit',this)">Git</button>
+      </div>
+      <div id="vscode-cards" class="cards"></div>
     </div>
 
   </main>
@@ -2572,6 +2616,167 @@ Ctrl+R         <span class="comment"># búsqueda interactiva en historial</span>
     }
   ],
 
+  vscode: [
+    /* ── GENERAL ── */
+    {
+      cat: 'vsgen', tag: 'tag-vsgen', tagLabel: 'General',
+      cmd: 'Paleta de comandos y archivos',
+      desc: 'Los accesos más usados para moverte por el editor sin el mouse.',
+      code: `<span class="comment">Ctrl+Shift+P  → Paleta de comandos</span>
+<span class="comment">Ctrl+P        → Ir a archivo (Quick Open)</span>
+<span class="comment">Ctrl+,        → Abrir Configuración</span>
+<span class="comment">Ctrl+K Ctrl+S → Abrir atajos de teclado</span>
+<span class="comment">Ctrl+Shift+N  → Nueva ventana</span>
+<span class="comment">Ctrl+Shift+W  → Cerrar ventana</span>
+<span class="comment">Ctrl+W        → Cerrar pestaña/editor</span>
+<span class="comment">Ctrl+Shift+T  → Reabrir editor cerrado</span>`
+    },
+    {
+      cat: 'vsgen', tag: 'tag-vsgen', tagLabel: 'General',
+      cmd: 'Temas y apariencia',
+      desc: 'Cambia rápidamente el aspecto del editor.',
+      code: `<span class="comment">Ctrl+K Ctrl+T → Seleccionar Tema de color</span>
+<span class="comment">Ctrl+B        → Mostrar/ocultar barra lateral</span>
+<span class="comment">Ctrl+J        → Mostrar/ocultar panel inferior</span>
+<span class="comment">Ctrl+Shift+E  → Foco en el Explorador</span>
+<span class="comment">Ctrl+Shift+X  → Abrir Extensiones</span>
+<span class="comment">Ctrl+Shift+D  → Abrir Debug/Ejecutar</span>
+<span class="comment">Ctrl+Shift+G  → Abrir control de código fuente</span>`
+    },
+
+    /* ── EDICIÓN ── */
+    {
+      cat: 'vsedit', tag: 'tag-vsedit', tagLabel: 'Edición',
+      cmd: 'Mover y duplicar líneas',
+      desc: 'Reordena código sin cortar y pegar.',
+      code: `<span class="comment">Alt+↑ / Alt+↓        → mover línea arriba / abajo</span>
+<span class="comment">Shift+Alt+↑ / ↓      → copiar línea arriba / abajo</span>
+<span class="comment">Ctrl+Shift+K         → eliminar línea</span>
+<span class="comment">Ctrl+Enter           → insertar línea abajo</span>
+<span class="comment">Ctrl+Shift+Enter     → insertar línea arriba</span>
+<span class="comment">Ctrl+/               → comentar/descomentar línea</span>
+<span class="comment">Shift+Alt+A          → comentar bloque</span>`
+    },
+    {
+      cat: 'vsedit', tag: 'tag-vsedit', tagLabel: 'Edición',
+      cmd: 'Formato y refactor',
+      desc: 'Limpia y transforma código automáticamente.',
+      code: `<span class="comment">Shift+Alt+F   → formatear documento</span>
+<span class="comment">Ctrl+K Ctrl+F → formatear selección</span>
+<span class="comment">F2            → renombrar símbolo</span>
+<span class="comment">Ctrl+.        → Quick Fix / acciones rápidas</span>
+<span class="comment">Ctrl+Shift+R  → Refactorizar</span>
+<span class="comment">Alt+Shift+O   → organizar imports</span>`
+    },
+    {
+      cat: 'vsedit', tag: 'tag-vsedit', tagLabel: 'Edición',
+      cmd: 'Indentación y selección',
+      desc: 'Ajusta sangría y selecciona bloques con precisión.',
+      code: `<span class="comment">Ctrl+]        → aumentar sangría</span>
+<span class="comment">Ctrl+[        → disminuir sangría</span>
+<span class="comment">Ctrl+A        → seleccionar todo</span>
+<span class="comment">Shift+Alt+→   → expandir selección</span>
+<span class="comment">Shift+Alt+←   → reducir selección</span>
+<span class="comment">Ctrl+L        → seleccionar línea actual</span>`
+    },
+
+    /* ── NAVEGACIÓN ── */
+    {
+      cat: 'vsnav', tag: 'tag-vsnav', tagLabel: 'Navegación',
+      cmd: 'Ir a definición y referencias',
+      desc: 'Salta por el código siguiendo símbolos.',
+      code: `<span class="comment">F12           → ir a definición</span>
+<span class="comment">Alt+F12       → ver definición (peek)</span>
+<span class="comment">Shift+F12     → ver todas las referencias</span>
+<span class="comment">Ctrl+K F12    → abrir definición al lado</span>
+<span class="comment">Ctrl+T        → ir a símbolo en el workspace</span>
+<span class="comment">Ctrl+Shift+O  → ir a símbolo en el archivo</span>
+<span class="comment">Ctrl+G        → ir a línea</span>`
+    },
+    {
+      cat: 'vsnav', tag: 'tag-vsnav', tagLabel: 'Navegación',
+      cmd: 'Editores y pestañas',
+      desc: 'Muévete entre archivos abiertos y divide la vista.',
+      code: `<span class="comment">Ctrl+Tab            → alternar entre editores</span>
+<span class="comment">Ctrl+PageUp/PageDown → pestaña anterior/siguiente</span>
+<span class="comment">Ctrl+\\               → dividir editor</span>
+<span class="comment">Ctrl+1 / 2 / 3       → foco en grupo de editor 1/2/3</span>
+<span class="comment">Alt+←  / Alt+→       → retroceder / avanzar navegación</span>
+<span class="comment">Ctrl+K W             → cerrar todos los editores del grupo</span>`
+    },
+
+    /* ── MULTI-CURSOR ── */
+    {
+      cat: 'vsmulti', tag: 'tag-vsmulti', tagLabel: 'Multi-cursor',
+      cmd: 'Múltiples cursores',
+      desc: 'Edita varias posiciones a la vez.',
+      code: `<span class="comment">Alt+Click         → agregar cursor en el clic</span>
+<span class="comment">Ctrl+Alt+↑ / ↓    → agregar cursor arriba / abajo</span>
+<span class="comment">Ctrl+D            → seleccionar siguiente coincidencia</span>
+<span class="comment">Ctrl+Shift+L      → seleccionar todas las coincidencias</span>
+<span class="comment">Ctrl+U            → deshacer último cursor</span>
+<span class="comment">Shift+Alt+I       → cursor al final de cada línea seleccionada</span>`
+    },
+
+    /* ── BÚSQUEDA ── */
+    {
+      cat: 'vssearch', tag: 'tag-vssearch', tagLabel: 'Búsqueda',
+      cmd: 'Buscar y reemplazar',
+      desc: 'Encuentra texto dentro del archivo o en todo el proyecto.',
+      code: `<span class="comment">Ctrl+F        → buscar en el archivo</span>
+<span class="comment">Ctrl+H        → reemplazar en el archivo</span>
+<span class="comment">Ctrl+Shift+F  → buscar en todo el proyecto</span>
+<span class="comment">Ctrl+Shift+H  → reemplazar en todo el proyecto</span>
+<span class="comment">F3 / Shift+F3 → siguiente / anterior coincidencia</span>
+<span class="comment">Alt+Enter     → seleccionar todas las coincidencias</span>`
+    },
+
+    /* ── PANELES Y TERMINAL ── */
+    {
+      cat: 'vspanel', tag: 'tag-vspanel', tagLabel: 'Paneles y Terminal',
+      cmd: 'Terminal integrada',
+      desc: 'Trabaja con la terminal sin salir del editor.',
+      code: `<span class="comment">Ctrl+\`            → mostrar/ocultar terminal</span>
+<span class="comment">Ctrl+Shift+\`      → nueva terminal</span>
+<span class="comment">Ctrl+Shift+5      → dividir terminal</span>
+<span class="comment">Alt+←  / Alt+→    → cambiar entre terminales</span>
+<span class="comment">Ctrl+Shift+C      → abrir terminal externa aquí</span>`
+    },
+    {
+      cat: 'vspanel', tag: 'tag-vspanel', tagLabel: 'Paneles y Terminal',
+      cmd: 'Zen y pantalla completa',
+      desc: 'Minimiza distracciones para enfocarte en el código.',
+      code: `<span class="comment">Ctrl+K Z      → Modo Zen (sin distracciones)</span>
+<span class="comment">Esc Esc       → salir del Modo Zen</span>
+<span class="comment">F11           → pantalla completa</span>`
+    },
+
+    /* ── DEBUG ── */
+    {
+      cat: 'vsdebug', tag: 'tag-vsdebug', tagLabel: 'Debug',
+      cmd: 'Depuración',
+      desc: 'Controla la ejecución paso a paso durante una sesión de debug.',
+      code: `<span class="comment">F5            → iniciar / continuar depuración</span>
+<span class="comment">Shift+F5      → detener depuración</span>
+<span class="comment">Ctrl+Shift+F5 → reiniciar depuración</span>
+<span class="comment">F9            → alternar breakpoint</span>
+<span class="comment">F10           → step over</span>
+<span class="comment">F11           → step into</span>
+<span class="comment">Shift+F11     → step out</span>`
+    },
+
+    /* ── GIT ── */
+    {
+      cat: 'vsgit', tag: 'tag-vsgit', tagLabel: 'Git',
+      cmd: 'Control de código fuente',
+      desc: 'Atajos para el panel de Git integrado en VS Code.',
+      code: `<span class="comment">Ctrl+Shift+G G  → abrir panel de control de código fuente</span>
+<span class="comment">Ctrl+Enter      → hacer commit (con el mensaje escrito)</span>
+<span class="comment">Ctrl+K Ctrl+O   → abrir carpeta</span>
+<span class="comment">Alt+Click       → ver diff en línea (Source Control)</span>`
+    }
+  ],
+
 };
 
 /* ═══════════════════════════════
@@ -2581,39 +2786,43 @@ const menuBtn = document.getElementById('menu-btn');
 const sidebar = document.querySelector('aside');
 const overlay = document.getElementById('overlay');
 
-function toggleMenu() {
-  sidebar.classList.toggle('open');
-  overlay.classList.toggle('open');
+function setMenu(open, restoreFocus = false) {
+  sidebar.classList.toggle('open', open);
+  overlay.classList.toggle('open', open);
+  menuBtn.setAttribute('aria-expanded', String(open));
+  if (restoreFocus) menuBtn.focus();
 }
+function toggleMenu() { setMenu(!sidebar.classList.contains('open')); }
 menuBtn.addEventListener('click', toggleMenu);
-overlay.addEventListener('click', toggleMenu);
+overlay.addEventListener('click', () => setMenu(false, true));
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && sidebar.classList.contains('open')) setMenu(false, true);
+});
 
 /* ═══════════════════════════════
    STATE
 ═══════════════════════════════ */
 let currentTopic  = 'git';
-let currentFilter = { git: 'all', termux: 'all', cmd: 'all', ps: 'all', vim: 'all', venv: 'all', linux: 'all', gh: 'all', bash: 'all' };
+let currentFilter = { git: 'all', termux: 'all', cmd: 'all', ps: 'all', vim: 'all', venv: 'all', linux: 'all', gh: 'all', bash: 'all', vscode: 'all' };
 let searchQuery   = '';
 
 /* ═══════════════════════════════
    RENDER
 ═══════════════════════════════ */
+function getFilteredItems(topic) {
+  const filter = currentFilter[topic] || 'all';
+  const q = searchQuery.toLowerCase();
+  return DATA[topic].filter(item => {
+    const code = document.createElement('code');
+    code.innerHTML = item.code;
+    return (filter === 'all' || item.cat === filter) &&
+      (!q || [item.cmd, item.desc, code.textContent].some(text => text.toLowerCase().includes(q)));
+  });
+}
 function renderCards(topic) {
   const container = document.getElementById(`${topic}-cards`);
   if (!container) return;
-  const filter = currentFilter[topic] || 'all';
-  const q = searchQuery.toLowerCase();
-
-  const items = DATA[topic].filter(item => {
-    const matchFilter = filter === 'all' || item.cat === filter;
-    const cleanCode = item.code.replace(/<[^>]*>/g, '');
-    const matchSearch = !q ||
-      item.cmd.toLowerCase().includes(q) ||
-      item.desc.toLowerCase().includes(q) ||
-      cleanCode.toLowerCase().includes(q);
-    return matchFilter && matchSearch;
-  });
-
+  const items = getFilteredItems(topic);
   container.innerHTML = items.length ? items.map(item => `
     <div class="card">
       <div class="card-top">
@@ -2622,7 +2831,7 @@ function renderCards(topic) {
       </div>
       <p class="card-desc">${item.desc}</p>
       <div class="code-block">
-        <button class="copy-btn" onclick="copyCode(this)" title="Copiar">
+        <button class="copy-btn" onclick="copyCode(this)" title="Copiar" aria-label="Copiar código">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
           </svg>
@@ -2634,24 +2843,35 @@ function renderCards(topic) {
     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".4">
       <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
     </svg>
-    <p>Sin resultados para "<strong>${q || filter}</strong>"</p>
+    <p>Sin resultados para "<strong class="empty-query"></strong>"</p>
   </div>`;
+  if (!items.length) container.querySelector('.empty-query').textContent = searchQuery || currentFilter[topic];
 }
 
 /* ═══════════════════════════════
    COPY
 ═══════════════════════════════ */
-function copyCode(btn) {
-  const code = btn.closest('.code-block').querySelector('code');
-  const text = code.innerText || code.textContent;
-  navigator.clipboard.writeText(text).then(() => {
+async function copyCode(btn) {
+  const code = btn.closest('.code-block').querySelector('code').cloneNode(true);
+  code.querySelectorAll('.prompt, .prompt-ps, .prompt-cmd').forEach(prompt => {
+    const next = prompt.nextSibling;
+    if (next && next.nodeType === 3) next.textContent = next.textContent.replace(/^ /, '');
+    prompt.remove();
+  });
+  const status = document.getElementById('copy-status');
+  status.textContent = '';
+  try {
+    await navigator.clipboard.writeText(code.textContent);
+    status.textContent = 'Código copiado al portapapeles.';
     btn.classList.add('copied');
-    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`;
+    btn.setAttribute('aria-label', 'Código copiado');
     setTimeout(() => {
       btn.classList.remove('copied');
-      btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
+      btn.setAttribute('aria-label', 'Copiar código');
     }, 1800);
-  });
+  } catch {
+    status.textContent = 'No se pudo copiar. Selecciona el código y cópialo manualmente.';
+  }
 }
 
 /* ═══════════════════════════════
@@ -2680,8 +2900,6 @@ document.getElementById('search').addEventListener('input', function() {
 ═══════════════════════════════ */
 function switchTopic(topic, el) {
   currentTopic = topic;
-  searchQuery  = '';
-  document.getElementById('search').value = '';
 
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
@@ -2689,8 +2907,7 @@ function switchTopic(topic, el) {
   document.querySelectorAll('.topic-section').forEach(s => s.classList.remove('visible'));
   document.getElementById(`section-${topic}`).classList.add('visible');
 
-  document.querySelector('aside').classList.remove('open');
-  document.getElementById('overlay').classList.remove('open');
+  setMenu(false, sidebar.classList.contains('open'));
 
   renderCards(topic);
   updateCount();
@@ -2700,35 +2917,12 @@ function switchTopic(topic, el) {
    COUNT BADGE
 ═══════════════════════════════ */
 function updateCount() {
-  const topics = ['git', 'termux', 'cmd', 'ps', 'vim', 'venv', 'linux', 'gh', 'bash'];
-  topics.forEach(t => {
-    const filter = currentFilter[t] || 'all';
-    const q = searchQuery.toLowerCase();
-    const n = DATA[t].filter(item => {
-      const mf = filter === 'all' || item.cat === filter;
-      const cleanCode = item.code.replace(/<[^>]*>/g, '');
-      const ms = !q ||
-        item.cmd.toLowerCase().includes(q) ||
-        item.desc.toLowerCase().includes(q) ||
-        cleanCode.toLowerCase().includes(q);
-      return mf && ms;
-    }).length;
-    const el = document.getElementById(`cnt-${t}`);
-    if (el) el.textContent = n;
+  Object.keys(DATA).forEach(topic => {
+    const el = document.getElementById(`cnt-${topic}`);
+    if (el) el.textContent = getFilteredItems(topic).length;
   });
-  const filter = currentFilter[currentTopic] || 'all';
-  const q = searchQuery.toLowerCase();
-  const cur = DATA[currentTopic].filter(item => {
-    const mf = filter === 'all' || item.cat === filter;
-    const cleanCode = item.code.replace(/<[^>]*>/g, '');
-    const ms = !q ||
-      item.cmd.toLowerCase().includes(q) ||
-      item.desc.toLowerCase().includes(q) ||
-      cleanCode.toLowerCase().includes(q);
-    return mf && ms;
-  }).length;
   const badge = document.getElementById('total-count');
-  if (badge) badge.textContent = cur;
+  if (badge) badge.textContent = getFilteredItems(currentTopic).length;
 }
 
 /* ═══════════════════════════════
