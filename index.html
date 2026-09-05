@@ -16,7 +16,7 @@
     --border: #44475a;
     --text: #f8f8f2;
     --text2: #bfbfc9;
-    --text3: #6272a4;
+    --text3: #aab5d1;
     --accent: #8be9fd;
     --accent2: #ff79c6;
     --green: #50fa7b;
@@ -91,7 +91,7 @@
 
   .search-wrap {
     flex: 1;
-    max-width: 420px;
+    max-width: 640px;
     margin: 0 32px;
     position: relative;
   }
@@ -195,8 +195,8 @@
   .nav-item .count {
     margin-left: auto;
     font-size: 11px;
-    color: var(--text3);
-    background: var(--bg4);
+    color: var(--text);
+    background: var(--bg3);
     border-radius: 10px;
     padding: 1px 7px;
   }
@@ -269,7 +269,7 @@
     transition: all .12s;
   }
   .filter-btn:hover { border-color: var(--accent2); color: var(--text); }
-  .filter-btn.active { background: var(--accent2); border-color: var(--accent2); color: #fff; font-weight: 500; }
+  .filter-btn.active { background: var(--accent2); border-color: var(--accent2); color: var(--bg); font-weight: 600; }
 
   /* ── SECTION ── */
   .section { margin-bottom: 40px; }
@@ -508,6 +508,26 @@
     .cards { grid-template-columns: 1fr; }
     .search-wrap { max-width: 240px; margin: 0 12px; }
   }
+
+  /* Mejoras de lectura: tarjetas y ejemplos siempre desplegados. */
+  .nav-item.active { box-shadow: inset 3px 0 var(--accent); }
+  .cmd-name { font-size: 15px; overflow-wrap: anywhere; }
+  .card-top { gap: 10px; }
+  .card-desc { font-size: 14px; }
+  .copy-btn { opacity: 1; color: var(--text); display: flex; align-items: center; gap: 5px; min-height: 32px; }
+  .card-actions { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 8px; }
+  .card-actions .copy-btn { position: static; flex-shrink: 0; }
+  .search-options { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
+  .search-options select { font: inherit; color: var(--text); background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 9px; }
+  .search-options label { color: var(--text2); }
+  mark { background: #f1fa8c; color: #282a36; border-radius: 2px; }
+  @media (max-width: 768px) {
+    header { height: 116px; flex-wrap: wrap; padding: 10px 16px; gap: 8px; }
+    .search-wrap { order: 3; flex-basis: 100%; max-width: none; margin: 0; }
+    #search { min-height: 42px; }
+    aside, .overlay.open { top: 116px; }
+    aside { height: calc(100vh - 116px); }
+  }
 </style>
 </head>
 <body>
@@ -534,7 +554,7 @@
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
     </svg>
-    <input id="search" aria-label="Buscar comandos" type="search" placeholder="Buscar comandos…" autocomplete="off" spellcheck="false">
+    <input id="search" aria-label="Buscar comandos" type="search" placeholder="Buscar comando o descripción…" autocomplete="off" spellcheck="false">
   </div>
 
   <div class="header-right">
@@ -611,6 +631,11 @@
 
   <!-- ── MAIN ── -->
   <main>
+    <div class="search-options">
+      <label for="search-scope">Buscar en</label>
+      <select id="search-scope" aria-label="Herramienta de búsqueda"></select>
+      <span id="search-results" role="status" aria-live="polite"></span>
+    </div>
 
     <!-- ════ GIT ════ -->
     <div class="topic-section visible" id="section-git">
@@ -2804,11 +2829,47 @@ document.addEventListener('keydown', event => {
 ═══════════════════════════════ */
 let currentTopic  = 'git';
 let currentFilter = { git: 'all', termux: 'all', cmd: 'all', ps: 'all', vim: 'all', venv: 'all', linux: 'all', gh: 'all', bash: 'all', vscode: 'all' };
-let searchQuery   = '';
+let searchQuery = '';
+let searchScope = 'git';
+const topicNames = {git: 'Git', termux: 'Termux', cmd: 'CMD', ps: 'PowerShell', vim: 'Vim', venv: 'Python venv', linux: 'Linux', gh: 'GitHub CLI', bash: 'Bash', vscode: 'VS Code'};
 
 /* ═══════════════════════════════
    RENDER
 ═══════════════════════════════ */
+function highlightMatches(element) {
+  const query = searchQuery.toLowerCase();
+  if (!query) return;
+  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(node => {
+    const text = node.textContent;
+    const lower = text.toLowerCase();
+    let start = 0, position;
+    const fragment = document.createDocumentFragment();
+    while ((position = lower.indexOf(query, start)) !== -1) {
+      fragment.append(document.createTextNode(text.slice(start, position)));
+      const mark = document.createElement('mark');
+      mark.textContent = text.slice(position, position + query.length);
+      fragment.append(mark);
+      start = position + query.length;
+    }
+    if (start) {
+      fragment.append(document.createTextNode(text.slice(start)));
+      node.replaceWith(fragment);
+    }
+  });
+}
+function refreshView() {
+  document.querySelectorAll('.topic-section').forEach(section => {
+    const topic = section.id.replace('section-', '');
+    const visible = searchScope === 'all' || topic === currentTopic;
+    section.classList.toggle('visible', visible);
+    if (visible) renderCards(topic);
+  });
+  updateCount();
+}
+
 function getFilteredItems(topic) {
   const filter = currentFilter[topic] || 'all';
   const q = searchQuery.toLowerCase();
@@ -2827,15 +2888,18 @@ function renderCards(topic) {
     <div class="card">
       <div class="card-top">
         <h3 class="cmd-name">${item.cmd}</h3>
+        <div class="card-actions">
         <span class="tag ${item.tag}">${item.tagLabel}</span>
-      </div>
-      <p class="card-desc">${item.desc}</p>
-      <div class="code-block">
         <button class="copy-btn" onclick="copyCode(this)" title="Copiar" aria-label="Copiar código">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-          </svg>
+          </svg>Copiar
         </button>
+        </div>
+      </div>
+      <p class="card-desc">${item.desc}</p>
+      <div class="code-block">
+
         <pre><code>${item.code}</code></pre>
       </div>
     </div>
@@ -2846,13 +2910,16 @@ function renderCards(topic) {
     <p>Sin resultados para "<strong class="empty-query"></strong>"</p>
   </div>`;
   if (!items.length) container.querySelector('.empty-query').textContent = searchQuery || currentFilter[topic];
+  if (searchQuery) container.querySelectorAll('.cmd-name, .card-desc, pre code').forEach(highlightMatches);
 }
 
 /* ═══════════════════════════════
    COPY
 ═══════════════════════════════ */
 async function copyCode(btn) {
-  const code = btn.closest('.code-block').querySelector('code').cloneNode(true);
+  const code = btn.closest('.card').querySelector('pre code').cloneNode(true);
+  code.querySelectorAll('mark').forEach(mark => mark.replaceWith(document.createTextNode(mark.textContent)));
+  code.normalize();
   code.querySelectorAll('.prompt, .prompt-ps, .prompt-cmd').forEach(prompt => {
     const next = prompt.nextSibling;
     if (next && next.nodeType === 3) next.textContent = next.textContent.replace(/^ /, '');
@@ -2882,8 +2949,7 @@ function filterCards(topic, cat, btn) {
   const section = document.getElementById(`section-${topic}`);
   section.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  renderCards(topic);
-  updateCount();
+  refreshView();
 }
 
 /* ═══════════════════════════════
@@ -2891,8 +2957,7 @@ function filterCards(topic, cat, btn) {
 ═══════════════════════════════ */
 document.getElementById('search').addEventListener('input', function() {
   searchQuery = this.value.trim();
-  renderCards(currentTopic);
-  updateCount();
+  refreshView();
 });
 
 /* ═══════════════════════════════
@@ -2900,6 +2965,8 @@ document.getElementById('search').addEventListener('input', function() {
 ═══════════════════════════════ */
 function switchTopic(topic, el) {
   currentTopic = topic;
+  searchScope = topic;
+  document.getElementById('search-scope').value = topic;
 
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
@@ -2909,8 +2976,7 @@ function switchTopic(topic, el) {
 
   setMenu(false, sidebar.classList.contains('open'));
 
-  renderCards(topic);
-  updateCount();
+  refreshView();
 }
 
 /* ═══════════════════════════════
@@ -2922,14 +2988,24 @@ function updateCount() {
     if (el) el.textContent = getFilteredItems(topic).length;
   });
   const badge = document.getElementById('total-count');
-  if (badge) badge.textContent = getFilteredItems(currentTopic).length;
+  const count = searchScope === 'all' ? Object.keys(DATA).reduce((sum, topic) => sum + getFilteredItems(topic).length, 0) : getFilteredItems(currentTopic).length;
+  if (badge) badge.textContent = count;
+  document.getElementById('search-results').textContent = `${count} resultados`;
 }
 
 /* ═══════════════════════════════
    INIT
 ═══════════════════════════════ */
-Object.keys(DATA).forEach(t => renderCards(t));
-updateCount();
+const scopeSelect = document.getElementById('search-scope');
+scopeSelect.innerHTML = '<option value="all">Todas las herramientas</option>' + Object.entries(topicNames).map(([topic, name]) => `<option value="${topic}">${name}</option>`).join('');
+scopeSelect.value = currentTopic;
+scopeSelect.addEventListener('change', () => {
+  searchScope = scopeSelect.value;
+  if (searchScope !== 'all') currentTopic = searchScope;
+  document.querySelectorAll('.nav-item').forEach(button => button.classList.toggle('active', button.dataset.topic === searchScope));
+  refreshView();
+});
+refreshView();
 
 </script>
 </body>
