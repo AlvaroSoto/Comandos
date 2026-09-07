@@ -2136,9 +2136,17 @@ db = os.getenv(<span class="str">"DATABASE_URL"</span>)
     /* ── ARCHIVOS ── */
     {
       cat: 'lfile', tag: 'tag-lfile', tagLabel: 'Archivos',
-      cmd: 'cp / mv / rm / mkdir',
+      cmd: 'touch / mkdir / cp / mv / rm',
       desc: 'Crea, copia, mueve y elimina archivos y directorios.',
-      code: `<span class="comment"># Copiar</span>
+      code: `<span class="comment"># Crear archivos</span>
+<span class="prompt">$</span> <span class="cmd">touch</span> archivo.txt          <span class="comment"># crea un archivo vacío (o actualiza su fecha)</span>
+<span class="prompt">$</span> <span class="cmd">touch</span> a.txt b.txt c.txt   <span class="comment"># crea varios a la vez</span>
+
+<span class="comment"># Crear directorios</span>
+<span class="prompt">$</span> <span class="cmd">mkdir</span> nueva-carpeta
+<span class="prompt">$</span> <span class="cmd">mkdir</span> <span class="flag">-p</span> a/b/c          <span class="comment"># crea toda la ruta</span>
+
+<span class="comment"># Copiar</span>
 <span class="prompt">$</span> <span class="cmd">cp</span> archivo.txt destino/
 <span class="prompt">$</span> <span class="cmd">cp</span> <span class="flag">-r</span> carpeta/ destino/   <span class="comment"># recursivo</span>
 
@@ -2148,11 +2156,30 @@ db = os.getenv(<span class="str">"DATABASE_URL"</span>)
 
 <span class="comment"># Eliminar</span>
 <span class="prompt">$</span> <span class="cmd">rm</span> archivo.txt
-<span class="prompt">$</span> <span class="cmd">rm</span> <span class="flag">-rf</span> carpeta/        <span class="comment"># recursivo, sin confirmar ⚠️</span>
+<span class="prompt">$</span> <span class="cmd">rm</span> <span class="flag">-rf</span> carpeta/        <span class="comment"># recursivo, sin confirmar ⚠️</span>`
+    },
+    {
+      cat: 'lfile', tag: 'tag-lfile', tagLabel: 'Archivos',
+      cmd: 'nano',
+      desc: 'Editor de texto en terminal simple y accesible, ideal para crear o modificar archivos rápido.',
+      code: `<span class="comment"># Instalar si no viene preinstalado</span>
+<span class="prompt">$</span> <span class="cmd">sudo apt install</span> nano       <span class="comment"># Debian/Ubuntu</span>
+<span class="prompt">$</span> <span class="cmd">sudo dnf install</span> nano       <span class="comment"># Fedora</span>
+<span class="prompt">$</span> <span class="cmd">sudo pacman -S</span> nano         <span class="comment"># Arch</span>
 
-<span class="comment"># Crear directorios</span>
-<span class="prompt">$</span> <span class="cmd">mkdir</span> nueva-carpeta
-<span class="prompt">$</span> <span class="cmd">mkdir</span> <span class="flag">-p</span> a/b/c          <span class="comment"># crea toda la ruta</span>`
+<span class="comment"># Crear o abrir un archivo para editarlo</span>
+<span class="prompt">$</span> <span class="cmd">nano</span> archivo.txt
+
+<span class="comment"># Atajos esenciales dentro del editor</span>
+<span class="comment">Ctrl+O</span>  guardar (Write Out)
+<span class="comment">Ctrl+X</span>  salir
+<span class="comment">Ctrl+K</span>  cortar línea
+<span class="comment">Ctrl+U</span>  pegar línea
+<span class="comment">Ctrl+W</span>  buscar texto
+<span class="comment">Ctrl+\\</span> buscar y reemplazar
+
+<span class="comment"># Abrir directamente en una línea específica</span>
+<span class="prompt">$</span> <span class="cmd">nano</span> <span class="flag">+50</span> archivo.txt`
     },
     {
       cat: 'lfile', tag: 'tag-lfile', tagLabel: 'Archivos',
