@@ -2295,6 +2295,29 @@ db = os.getenv(<span class="str">"DATABASE_URL"</span>)
 <span class="prompt">$</span> <span class="cmd">nohup</span> ./servidor.sh &amp;
 <span class="prompt">$</span> <span class="cmd">nohup</span> ./script.sh > output.log 2>&amp;1 &amp;`
     },
+    {
+      cat: 'lproc', tag: 'tag-lproc', tagLabel: 'Procesos',
+      cmd: 'shutdown / reboot / poweroff',
+      desc: 'Apaga, reinicia o suspende el sistema desde la terminal.',
+      code: `<span class="comment"># Apagar</span>
+<span class="prompt">$</span> <span class="cmd">sudo shutdown</span> now         <span class="comment"># apagar inmediatamente</span>
+<span class="prompt">$</span> <span class="cmd">sudo shutdown</span> <span class="flag">-h</span> +10      <span class="comment"># apagar en 10 minutos</span>
+<span class="prompt">$</span> <span class="cmd">sudo poweroff</span>              <span class="comment"># apagar directo</span>
+
+<span class="comment"># Reiniciar</span>
+<span class="prompt">$</span> <span class="cmd">sudo reboot</span>                <span class="comment"># reiniciar directo</span>
+<span class="prompt">$</span> <span class="cmd">sudo shutdown</span> <span class="flag">-r</span> now      <span class="comment"># reiniciar inmediatamente</span>
+
+<span class="comment"># Cancelar un apagado/reinicio programado</span>
+<span class="prompt">$</span> <span class="cmd">sudo shutdown</span> <span class="flag">-c</span>
+
+<span class="comment"># Suspender / hibernar</span>
+<span class="prompt">$</span> <span class="cmd">systemctl suspend</span>          <span class="comment"># suspender a RAM</span>
+<span class="prompt">$</span> <span class="cmd">systemctl hibernate</span>        <span class="comment"># hibernar a disco</span>
+
+<span class="comment"># Cerrar sesión de usuario</span>
+<span class="prompt">$</span> <span class="cmd">logout</span>`
+    },
     /* ── RED ── */
     {
       cat: 'lnet', tag: 'tag-lnet', tagLabel: 'Red',
