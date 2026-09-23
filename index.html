@@ -528,6 +528,37 @@
     aside, .overlay.open { top: 116px; }
     aside { height: calc(100vh - 116px); }
   }
+  .reference-note { color: var(--text2); line-height: 1.6; margin-bottom: 16px; }
+  .reference-note a { color: var(--accent); }
+  .ascii-container { min-width: 0; }
+  .character-detail { padding: 24px; margin-bottom: 20px; border: 1px solid var(--accent); border-radius: 12px; background: var(--bg2); scroll-margin-top: 76px; }
+  .character-hero { display: flex; align-items: center; flex-wrap: wrap; gap: 24px; margin-bottom: 20px; }
+  .character-large { font-family: 'Fira Code', monospace; font-size: 64px; color: var(--orange); min-width: 90px; text-align: center; }
+  .character-detail h2 { font-size: 24px; margin-bottom: 8px; }
+  .character-detail h3 { margin: 18px 0 8px; }
+  .character-detail p { line-height: 1.65; color: var(--text2); }
+  .character-values { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  .character-values div { padding: 12px; border-radius: 8px; background: var(--bg); }
+  .character-values dt { color: var(--text2); font-size: 12px; margin-bottom: 6px; }
+  .character-values dd { font-family: 'Fira Code', monospace; overflow-wrap: anywhere; }
+  .character-detail .copy-btn { position: static; margin-top: 12px; }
+  .character-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 8px; margin: 12px 0 24px; }
+  .character-tile { cursor: pointer; min-height: 82px; padding: 8px 4px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg2); color: var(--text); }
+  .character-tile:hover, .character-tile[aria-pressed="true"] { border-color: var(--accent); background: var(--bg3); }
+  .character-tile:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+  .character-tile strong { display: block; font-family: 'Fira Code', monospace; font-size: 25px; color: var(--accent); }
+  .character-tile small { display: block; margin-top: 6px; color: var(--text2); }
+  .character-table-toggle { margin-bottom: 12px; cursor: pointer; color: var(--accent); }
+  @media (max-width: 768px) { .character-detail { scroll-margin-top: 136px; padding: 16px; } }
+  .ascii-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-lg); }
+  .ascii-table { width: 100%; border-collapse: collapse; background: var(--bg2); font-size: 14px; }
+  .ascii-table caption { padding: 14px; text-align: left; color: var(--text2); }
+  .ascii-table th, .ascii-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  .ascii-table th { background: var(--bg3); }
+  .ascii-table tbody tr:hover { background: var(--bg3); }
+  .ascii-character { font-family: 'Fira Code', monospace; color: var(--accent); font-size: 18px; }
+  .ascii-table .copy-btn { position: static; white-space: nowrap; }
+  .ascii-table td:nth-child(3), .ascii-table td:nth-child(5) { white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -2920,20 +2951,31 @@ function refreshView() {
   updateCount();
 }
 
+const searchTextCache = new WeakMap();
 function getFilteredItems(topic) {
   const filter = currentFilter[topic] || 'all';
   const q = searchQuery.toLowerCase();
   return DATA[topic].filter(item => {
-    const code = document.createElement('code');
-    code.innerHTML = item.code;
-    return (filter === 'all' || item.cat === filter) &&
-      (!q || [item.cmd, item.desc, code.textContent].some(text => text.toLowerCase().includes(q)));
+    if (filter !== 'all' && item.cat !== filter) return false;
+    if (!q) return true;
+    if (!searchTextCache.has(item)) {
+      const code = document.createElement('code');
+      code.innerHTML = item.code;
+      searchTextCache.set(item, [item.cmd, item.desc, code.textContent].join('\n').toLowerCase());
+    }
+    const text = searchTextCache.get(item);
+    return text.includes(q) || (topic === 'ascii' &&
+      text.replace(/\s*\+\s*/g, '+').includes(q.replace(/\s*\+\s*/g, '+')));
   });
 }
 function renderCards(topic) {
   const container = document.getElementById(`${topic}-cards`);
   if (!container) return;
   const items = getFilteredItems(topic);
+  if (topic === 'ascii' && items.length) {
+    renderAsciiTable(container, items);
+    return;
+  }
   container.innerHTML = items.length ? items.map(item => `
     <div class="card">
       <div class="card-top">
@@ -2966,6 +3008,53 @@ function renderCards(topic) {
 /* ═══════════════════════════════
    COPY
 ═══════════════════════════════ */
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, char => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[char]));
+}
+function renderAsciiTable(container, items) {
+  const selected = items.find(item => item.id === selectedCharacter) || items[0];
+  selectedCharacter = selected.id;
+  container.innerHTML = `<article class="character-detail" tabindex="-1" aria-labelledby="character-title"></article>
+    <p class="reference-note">Selecciona un carácter para ver sus códigos y cómo escribirlo. Los números de las casillas son ASCII o Unicode, según el grupo.</p>
+    ${[['standard','ASCII imprimible · 32–126'], ['control','ASCII de control · 0–31 y 127'], ['extended','Letras y símbolos · fuera de ASCII']].map(([group, label]) => {
+      const entries = items.filter(item => (item.cat === 'control' ? 'control' : item.point < 128 ? 'standard' : 'extended') === group);
+      return entries.length ? `<h3>${label}</h3><div class="character-grid">${entries.map(item => `<button class="character-tile" data-character="${item.id}" aria-pressed="${item.id === selected.id}" aria-label="${escapeHtml(item.desc)} · ${item.unicode}"><strong>${escapeHtml(item.character)}</strong><small>${item.point < 128 ? item.point : item.unicode}</small></button>`).join('')}</div>` : '';
+    }).join('')}
+    <details><summary class="character-table-toggle">Ver también como tabla</summary><div class="ascii-scroll" role="region" aria-label="Tabla de caracteres" tabindex="0"><table class="ascii-table">
+    <caption>Decimal y Unicode identifican el carácter; Alt indica una entrada de Windows-1252.</caption>
+    <thead><tr><th scope="col">Carácter</th><th scope="col">Decimal</th><th scope="col">Unicode</th><th scope="col">Descripción</th><th scope="col">Alt (Windows-1252)</th><th scope="col">Copiar</th></tr></thead>
+    <tbody>${items.map(item => `<tr><td class="ascii-character">${escapeHtml(item.character)}</td><td>${item.point}</td><td>${item.unicode}</td><td>${escapeHtml(item.desc)}</td><td>${item.alt || '—'}</td><td><button class="copy-btn" data-copy="${escapeHtml(item.copyText)}" aria-label="Copiar ${escapeHtml(item.desc)}">Copiar</button></td></tr>`).join('')}</tbody>
+  </table></div></details>`;
+  renderCharacterDetail(container, selected);
+  container.querySelectorAll('[data-character]').forEach(button => button.addEventListener('click', () => {
+    selectedCharacter = button.dataset.character;
+    container.querySelectorAll('[data-character]').forEach(tile => tile.setAttribute('aria-pressed', String(tile === button)));
+    renderCharacterDetail(container, items.find(item => item.id === selectedCharacter));
+    const detail = container.querySelector('.character-detail');
+    detail.focus({preventScroll: true});
+    detail.scrollIntoView({block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'});
+  }));
+  container.querySelectorAll('button[data-copy]').forEach(button => button.addEventListener('click', () => copyText(button, button.dataset.copy)));
+  if (searchQuery) container.querySelectorAll('td:not(:last-child)').forEach(highlightMatches);
+}
+function renderCharacterDetail(container, item) {
+  const control = item.cat === 'control';
+  const values = [
+    ['ASCII decimal', item.point < 128 ? item.point : 'No pertenece a ASCII'],
+    ['Unicode', item.unicode], ['Decimal Unicode', item.point], ['UTF-8 · bytes hex', item.utf8],
+    ['Referencia HTML decimal', control ? 'No usar para controles' : item.html],
+    ['Referencia HTML hexadecimal', control ? 'No usar para controles' : `&#x${item.unicode.slice(2)};`],
+    ['Alt · Windows-1252', item.alt || 'Sin código en esta guía']
+  ];
+  const detail = container.querySelector('.character-detail');
+  detail.innerHTML = `<div class="character-hero"><span class="character-large">${escapeHtml(item.character)}</span><div><h2 id="character-title">${escapeHtml(item.desc)}</h2><p>${item.point < 128 ? 'ASCII estándar · también forma parte de Unicode' : 'Unicode · carácter fuera del ASCII estándar'}</p><button class="copy-btn" aria-label="Copiar ${control ? 'abreviatura' : 'carácter'}">Copiar ${control ? 'abreviatura' : 'carácter'}</button></div></div>
+    <dl class="character-values">${values.map(([label, value]) => `<div><dt>${label}</dt><dd>${escapeHtml(value)}</dd></div>`).join('')}</dl>
+    <h3>Cómo escribirlo</h3>
+    ${control ? '<p>Es un código de control, no un símbolo imprimible. El botón copia su abreviatura para que puedas identificarlo; no inserta el control.</p>' : `<p><strong>Windows:</strong> ${item.alt ? `activa Bloq Num, mantén Alt, escribe <strong>${item.alt.split(' + ')[1]}</strong> en el teclado numérico y suelta Alt. Conserva el cero inicial. Esta entrada supone Windows-1252 y puede variar por aplicación o configuración.` : 'copia el carácter con el botón y pégalo donde lo necesites.'}</p><p><strong>Word para Windows:</strong> escribe <strong>${item.unicode.slice(2)}</strong>, selecciona esos dígitos y pulsa <strong>Alt + X</strong>. Este método es de Word; no es un atajo universal.</p><p><strong>HTML:</strong> usa el carácter directamente en un archivo UTF-8 o su referencia numérica. Escapa los caracteres con significado especial en HTML, como &lt; y &amp;.</p>`}
+    ${item.point === 126 ? '<p><strong>Sobre ~:</strong> se llama tilde o virgulilla. El signo matemático de identidad ≡ (U+2261) y el de aproximación ≈ (U+2248) son caracteres distintos.</p>' : ''}`;
+  const copy = detail.querySelector('.copy-btn');
+  copy.addEventListener('click', () => copyText(copy, item.copyText));
+}
 async function copyCode(btn) {
   const code = btn.closest('.card').querySelector('pre code').cloneNode(true);
   code.querySelectorAll('mark').forEach(mark => mark.replaceWith(document.createTextNode(mark.textContent)));
@@ -2975,19 +3064,34 @@ async function copyCode(btn) {
     if (next && next.nodeType === 3) next.textContent = next.textContent.replace(/^ /, '');
     prompt.remove();
   });
+  await copyText(btn, code.textContent);
+}
+const copyFeedback = new WeakMap();
+async function copyText(btn, text) {
+  const previous = copyFeedback.get(btn);
+  const originalLabel = previous ? previous.label : btn.getAttribute('aria-label');
+  if (previous) clearTimeout(previous.timer);
+  const feedback = {label: originalLabel, timer: null};
+  copyFeedback.set(btn, feedback);
   const status = document.getElementById('copy-status');
   status.textContent = '';
   try {
-    await navigator.clipboard.writeText(code.textContent);
-    status.textContent = 'Código copiado al portapapeles.';
+    await navigator.clipboard.writeText(text);
+    if (copyFeedback.get(btn) !== feedback) return;
+    status.textContent = 'Contenido copiado al portapapeles.';
     btn.classList.add('copied');
-    btn.setAttribute('aria-label', 'Código copiado');
-    setTimeout(() => {
+    btn.setAttribute('aria-label', 'Contenido copiado');
+    feedback.timer = setTimeout(() => {
       btn.classList.remove('copied');
-      btn.setAttribute('aria-label', 'Copiar código');
+      btn.setAttribute('aria-label', originalLabel);
+      copyFeedback.delete(btn);
     }, 1800);
   } catch {
-    status.textContent = 'No se pudo copiar. Selecciona el código y cópialo manualmente.';
+    if (copyFeedback.get(btn) !== feedback) return;
+    btn.classList.remove('copied');
+    btn.setAttribute('aria-label', originalLabel);
+    copyFeedback.delete(btn);
+    status.textContent = 'No se pudo copiar. Selecciona el contenido y cópialo manualmente.';
   }
 }
 
@@ -3046,6 +3150,121 @@ function updateCount() {
 /* ═══════════════════════════════
    INIT
 ═══════════════════════════════ */
+// Las referencias se registran antes de construir el buscador y la vista inicial.
+const referenceTopics = [
+  { key: 'windows', name: 'Atajos de Windows', icon: '⌨️', color: '#8be9fd',
+    description: 'Atajos para Windows 10 y 11. Win es la tecla con el logotipo de Windows. Algunas combinaciones dependen de la aplicación o configuración.',
+    source: 'https://support.microsoft.com/en-us/accessibility/windows/keyboard-shortcuts-in-windows',
+    categories: { winwindow: 'Ventanas', winfile: 'Archivos', wincapture: 'Capturas', winsystem: 'Sistema', winedit: 'Edición' } },
+  { key: 'ascii', name: 'ASCII y Unicode', icon: 'A', color: '#ffb86c',
+    description: 'Elige un símbolo y consulta su ficha. ASCII conserva sus 128 códigos (0–127); Unicode identifica los caracteres que se usan en el software actual y UTF-8 los representa como bytes. Aquí tienes ASCII completo y una selección de letras y símbolos útiles.',
+    source: 'https://learn.microsoft.com/en-us/office/vba/language/reference/user-interface-help/character-set-0127',
+    categories: { control: 'Control', symbols: 'Símbolos ASCII', digits: 'Números', upper: 'Mayúsculas', lower: 'Minúsculas', alt: 'Letras y símbolos Alt', unicode: 'Más símbolos Unicode' } }
+];
+const windowsShortcuts = {
+  winwindow: [
+    ['Alt + Tab', 'Cambiar de ventana.'], ['Win + D', 'Mostrar u ocultar el escritorio.'],
+    ['Win + Tab', 'Abrir la vista de tareas.'], ['Win + ← / →', 'Ajustar la ventana a un lado.'],
+    ['Win + ↑', 'Maximizar la ventana.'], ['Win + ↓', 'Restaurar o minimizar la ventana.'],
+    ['Alt + F4', 'Cerrar la ventana activa.'], ['Win + Ctrl + D', 'Crear un escritorio virtual.'],
+    ['Win + Ctrl + ← / →', 'Cambiar de escritorio virtual.'], ['Win + Ctrl + F4', 'Cerrar el escritorio virtual actual.']
+  ],
+  winfile: [
+    ['Win + E', 'Abrir el Explorador de archivos.'], ['Ctrl + Shift + N', 'Crear una carpeta en el Explorador.'],
+    ['F2', 'Cambiar el nombre del elemento seleccionado.'], ['Alt + Enter', 'Ver propiedades del elemento.'],
+    ['Alt + ↑', 'Subir a la carpeta contenedora.'], ['Alt + ← / →', 'Retroceder o avanzar en el Explorador.']
+  ],
+  wincapture: [
+    ['Win + Shift + S', 'Seleccionar una región para capturar.'],
+    ['Win + Impr Pant', 'Guardar una captura en Imágenes > Capturas de pantalla.'],
+    ['Alt + Impr Pant', 'Copiar una captura de la ventana activa.']
+  ],
+  winsystem: [
+    ['Win + I', 'Abrir Configuración.'], ['Win + R', 'Abrir Ejecutar.'], ['Win + L', 'Bloquear el equipo.'],
+    ['Win + S', 'Abrir la búsqueda.'], ['Ctrl + Shift + Esc', 'Abrir el Administrador de tareas.'],
+    ['Win + P', 'Elegir el modo de proyección.'], ['Win + Espacio', 'Cambiar idioma o distribución del teclado.'],
+    ['Win + .', 'Abrir el panel de emojis.']
+  ],
+  winedit: [
+    ['Ctrl + C', 'Copiar la selección.'], ['Ctrl + X', 'Cortar la selección.'], ['Ctrl + V', 'Pegar.'],
+    ['Ctrl + Z', 'Deshacer.'], ['Ctrl + Y', 'Rehacer.'], ['Ctrl + A', 'Seleccionar todo; puede variar por aplicación.'],
+    ['Win + V', 'Abrir el historial del portapapeles; requiere activarlo.']
+  ]
+};
+DATA.windows = Object.entries(windowsShortcuts).flatMap(([cat, shortcuts]) => shortcuts.map(([cmd, desc]) => ({
+  cat, cmd, desc, code: cmd, tag: 'tag-remote', tagLabel: referenceTopics[0].categories[cat]
+})));
+const asciiControls = 'NUL SOH STX ETX EOT ENQ ACK BEL BS HT LF VT FF CR SO SI DLE DC1 DC2 DC3 DC4 NAK SYN ETB CAN EM SUB ESC FS GS RS US'.split(' ');
+const asciiControlDescriptions = ['Nulo', 'Inicio de encabezado', 'Inicio de texto', 'Fin de texto', 'Fin de transmisión', 'Consulta', 'Confirmación', 'Campana', 'Retroceso', 'Tabulación horizontal', 'Salto de línea', 'Tabulación vertical', 'Salto de página', 'Retorno de carro', 'Desplazamiento de salida', 'Desplazamiento de entrada', 'Escape de enlace de datos', 'Control de dispositivo 1', 'Control de dispositivo 2', 'Control de dispositivo 3', 'Control de dispositivo 4', 'Confirmación negativa', 'Sincronización', 'Fin de bloque de transmisión', 'Cancelar', 'Fin de medio', 'Sustitución', 'Escape', 'Separador de archivos', 'Separador de grupos', 'Separador de registros', 'Separador de unidades'];
+const asciiSymbols = {32:'Espacio',33:'Exclamación',34:'Comillas dobles',35:'Numeral',36:'Dólar',37:'Porcentaje',38:'Ampersand',39:'Comilla simple',40:'Paréntesis izquierdo',41:'Paréntesis derecho',42:'Asterisco',43:'Más',44:'Coma',45:'Guion',46:'Punto',47:'Barra',58:'Dos puntos',59:'Punto y coma',60:'Menor que',61:'Igual',62:'Mayor que',63:'Interrogación',64:'Arroba',91:'Corchete izquierdo',92:'Barra invertida',93:'Corchete derecho',94:'Acento circunflejo',95:'Guion bajo',96:'Acento grave',123:'Llave izquierda',124:'Barra vertical',125:'Llave derecha',126:'Virgulilla'};
+DATA.ascii = Array.from({length: 128}, (_, decimal) => {
+  const char = String.fromCharCode(decimal);
+  const cat = decimal < 32 || decimal === 127 ? 'control' : /[0-9]/.test(char) ? 'digits' : /[A-Z]/.test(char) ? 'upper' : /[a-z]/.test(char) ? 'lower' : 'symbols';
+  const character = decimal < 32 ? asciiControls[decimal] : decimal === 127 ? 'DEL' : decimal === 32 ? 'SP' : char;
+  const desc = decimal < 32 ? asciiControlDescriptions[decimal] : decimal === 127 ? 'Suprimir' : asciiSymbols[decimal] || `${cat === 'digits' ? 'Dígito' : cat === 'upper' ? 'Letra mayúscula' : 'Letra minúscula'} ${char}`;
+  const hex = '0x' + decimal.toString(16).toUpperCase().padStart(2, '0');
+  return {cat, cmd: character, character, desc, decimal, hex, code: `${decimal} ${hex}`, copyText: cat === 'control' ? character : char};
+});
+const altCharacters = [
+  ['á',225,'a con acento'], ['é',233,'e con acento'], ['í',237,'i con acento'], ['ó',243,'o con acento'], ['ú',250,'u con acento'],
+  ['ü',252,'u con diéresis'], ['ñ',241,'eñe minúscula'], ['Ñ',209,'Eñe mayúscula'], ['Á',193,'A con acento'], ['É',201,'E con acento'],
+  ['Í',205,'I con acento'], ['Ó',211,'O con acento'], ['Ú',218,'U con acento'], ['Ü',220,'U con diéresis'],
+  ['¿',191,'Interrogación de apertura'], ['¡',161,'Exclamación de apertura'], ['°',176,'Grados'], ['€',128,'Euro'],
+  ['©',169,'Copyright'], ['®',174,'Marca registrada'], ['±',177,'Más o menos'], ['×',215,'Multiplicación'], ['÷',247,'División']
+];
+DATA.ascii.push(...altCharacters.map(([character, decimal, desc]) => ({
+  cat: 'alt', cmd: character, character, decimal, desc, hex: '0x' + decimal.toString(16).toUpperCase(),
+  code: 'Alt + ' + String(decimal).padStart(4, '0'), alt: 'Alt + ' + String(decimal).padStart(4, '0'), copyText: character
+})));
+// Los códigos Alt son bytes de una página de códigos; no son puntos Unicode.
+// Por ejemplo: euro = Alt 0128 en Windows-1252, pero Unicode U+20AC (8364).
+const unicodeCharacters = [
+  ['≈', 'Aproximadamente igual'], ['≡', 'Idéntico a / equivalencia matemática'], ['≠', 'Distinto de'],
+  ['≤', 'Menor o igual'], ['≥', 'Mayor o igual'], ['∞', 'Infinito'], ['√', 'Raíz cuadrada'],
+  ['π', 'Pi minúscula'], ['Ω', 'Omega mayúscula / ohmio'], ['→', 'Flecha derecha'], ['←', 'Flecha izquierda'],
+  ['↑', 'Flecha arriba'], ['↓', 'Flecha abajo'], ['✓', 'Marca de verificación'], ['✗', 'Marca de cruz'],
+  ['☐', 'Casilla vacía'], ['☑', 'Casilla marcada'], ['─', 'Línea horizontal'], ['│', 'Línea vertical'],
+  ['┌', 'Esquina superior izquierda'], ['┐', 'Esquina superior derecha'], ['└', 'Esquina inferior izquierda'],
+  ['┘', 'Esquina inferior derecha'], ['█', 'Bloque completo']
+];
+DATA.ascii.push(...unicodeCharacters.map(([character, desc]) => ({cat: 'unicode', cmd: character, character, desc, copyText: character, code: ''})));
+DATA.ascii.forEach(item => {
+  item.point = item.cat === 'control' ? item.decimal : item.copyText.codePointAt(0);
+  item.id = String(item.point);
+  item.unicode = 'U+' + item.point.toString(16).toUpperCase().padStart(4, '0');
+  item.utf8 = Array.from(new TextEncoder().encode(String.fromCodePoint(item.point)), byte => byte.toString(16).toUpperCase().padStart(2, '0')).join(' ');
+  item.html = `&#${item.point};`;
+  if (item.point >= 32 && item.point <= 126) item.alt = 'Alt + ' + String(item.point).padStart(4, '0');
+  // Plain search text is escaped because the shared search reads it as HTML.
+  const hex = item.point.toString(16).toUpperCase();
+  item.code = escapeHtml([item.point, '0x' + hex, '0x' + hex.padStart(2, '0'), item.unicode, item.utf8, item.html, `&#x${hex};`, `&#x${item.unicode.slice(2)};`, item.alt || '', item.point === 126 ? 'tilde virgulilla' : ''].join(' '));
+});
+let selectedCharacter = '126';
+referenceTopics.forEach(topic => {
+  topicNames[topic.key] = topic.name;
+  currentFilter[topic.key] = 'all';
+  const button = document.createElement('button');
+  button.className = 'nav-item';
+  button.dataset.topic = topic.key;
+  button.innerHTML = `<span class="dot" style="background:${topic.color}"></span>${topic.name}<span class="count" id="cnt-${topic.key}"></span>`;
+  button.addEventListener('click', () => switchTopic(topic.key, button));
+  sidebar.append(button);
+  const section = document.createElement('div');
+  section.className = 'topic-section';
+  section.id = `section-${topic.key}`;
+  section.innerHTML = `<div class="topic-header"><div class="topic-icon" style="background:${topic.color}20">${topic.icon}</div><div class="topic-info"><h1 style="color:${topic.color}">${topic.name}</h1><p>${topic.description}</p></div></div>
+    ${topic.key === 'ascii' ? '<p class="reference-note">“ASCII extendido” no es una tabla única: los valores 128–255 cambian entre páginas como CP437, CP850 y Windows-1252. Para identificar un carácter sin esa ambigüedad, consulta su valor Unicode. Los ejemplos Alt de esta guía usan Windows-1252.</p><p class="reference-note"><a href="https://www.unicode.org/standard/WhatIsUnicode.html" target="_blank" rel="noopener noreferrer">Qué es Unicode</a> · <a href="https://support.microsoft.com/en-us/word/insert-ascii-or-unicode-character-codes-in-word" target="_blank" rel="noopener noreferrer">Escribir códigos en Word</a> · <a href="https://www.unicode.org/Public/MAPPINGS/VENDORS/MICSFT/WINDOWS/CP1252.TXT" target="_blank" rel="noopener noreferrer">Tabla Windows-1252</a></p>' : ''}
+    <p class="reference-note"><a href="${topic.source}" target="_blank" rel="noopener noreferrer">Referencia de Microsoft</a></p>
+    <div class="filters" id="filters-${topic.key}"></div><div id="${topic.key}-cards" class="${topic.key === 'ascii' ? 'ascii-container' : 'cards'}"></div>`;
+  Object.entries({all: 'Todos', ...topic.categories}).forEach(([cat, label]) => {
+    const filter = document.createElement('button');
+    filter.className = 'filter-btn' + (cat === 'all' ? ' active' : '');
+    filter.textContent = label;
+    filter.addEventListener('click', () => filterCards(topic.key, cat, filter));
+    section.querySelector('.filters').append(filter);
+  });
+  document.querySelector('main').append(section);
+});
 const scopeSelect = document.getElementById('search-scope');
 scopeSelect.innerHTML = '<option value="all">Todas las herramientas</option>' + Object.entries(topicNames).map(([topic, name]) => `<option value="${topic}">${name}</option>`).join('');
 scopeSelect.value = currentTopic;

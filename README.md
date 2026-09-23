@@ -25,6 +25,16 @@ Aplicación educativa interactiva para aprender Git, GitHub, Linux, CMD, PowerSh
 
 ## 💻 Desarrollo y Uso
 
+- **Atajos de Windows:** 34 combinaciones para ventanas, archivos, capturas, sistema y edición.
+- **ASCII y Unicode:** cuadrícula con los 128 códigos ASCII, 23 letras y símbolos con entrada Alt y 24 símbolos Unicode adicionales. Cada carácter abre una ficha con vista ampliada, código ASCII cuando corresponde, punto Unicode, bytes UTF-8, referencias HTML e instrucciones para Windows y Word. Incluye una vista de tabla opcional.
+- **Alt de Windows:** 23 ejemplos de Windows-1252 separados de ASCII. Usa Alt con el teclado numérico, Bloq Num activo y el cero inicial; el resultado depende de la aplicación y página de códigos.
+
+Ambas secciones participan en la búsqueda local y global, los filtros y los contadores. Puedes buscar por carácter, nombre, decimal, Unicode (por ejemplo `U+20AC`), UTF-8, referencia HTML o código Alt. Se copia el carácter (o la abreviatura para controles). La cuadrícula se adapta a pantallas pequeñas y la tabla opcional permite desplazamiento horizontal.
+
+ASCII sigue limitado a 0–127: no existe un “ASCII extendido” único. Unicode identifica caracteres; UTF-8 es una forma de codificarlos. Los códigos Alt mostrados corresponden a Windows-1252, no a números Unicode: por ejemplo, `€` es `U+20AC` (decimal 8364), aunque su entrada Alt sea `0128`. La selección Unicode es práctica, no un catálogo completo del estándar. Referencias: [Unicode](https://www.unicode.org/standard/WhatIsUnicode.html) y [Windows-1252](https://www.unicode.org/Public/MAPPINGS/VENDORS/MICSFT/WINDOWS/CP1252.TXT).
+
+Fuentes: [atajos de Microsoft](https://support.microsoft.com/en-us/accessibility/windows/keyboard-shortcuts-in-windows), [ASCII 0–127](https://learn.microsoft.com/en-us/office/vba/language/reference/user-interface-help/character-set-0127) e [introducción de caracteres con Alt](https://support.microsoft.com/en-us/word/insert-ascii-or-unicode-character-codes-in-word).
+
 El proyecto está construido utilizando HTML, CSS y JavaScript vanilla, optimizado para ser ligero, rápido y responsivo.
 
 1. Descarga el repositorio y descomprime sus archivos.
